@@ -5,10 +5,10 @@ This document serves as a TDD (Test-Driven Development) guide for the Italian le
 ## v0.1.0: Environment Configuration
 
 ### Tasks
-- [ ] Set up `.env` file structure
-- [ ] Configure environment variables for API keys
-- [ ] Add `.env.example` file with template
-- [ ] Implement environment variable validation
+- [X] Set up `.env` file structure
+- [X] Configure environment variables for API keys
+- [X] Add `.env.example` file with template
+- [X] Implement environment variable validation
 
 ## v0.2.0: Portuguese to Italian Translation Exercise
 
