@@ -9,6 +9,7 @@ import (
 )
 
 type EnvConfig struct {
+	Port      string
 	OpenAIKey string
 	// DB    PostgresConfig
 	// Port  string
@@ -35,14 +36,19 @@ func getEnvValue(key string) (string, error) {
 }
 
 func LoadEnvConfig() (*EnvConfig, error) {
-	godotenv.Load("../.env")
+	godotenv.Load()
 
 	openAIKey, err := getEnvValue("OPENAI_API_KEY")
 	if err != nil {
 		return nil, err
 	}
+	port, err := getEnvValue("PORT")
+	if err != nil {
+		return nil, err
+	}
 
 	config := &EnvConfig{
+		Port:      port,
 		OpenAIKey: openAIKey,
 	}
 
