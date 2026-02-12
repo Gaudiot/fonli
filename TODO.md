@@ -13,9 +13,9 @@ This document serves as a TDD (Test-Driven Development) guide for the Italian le
 ## v0.2.0: Portuguese to Italian Translation Exercise
 
 ### Tasks
-- [ ] Create exercise endpoint/service for Portuguese to Italian translation
-- [ ] Implement AI integration for generating 10 simple Portuguese words
-- [ ] Implement AI integration for generating correct Italian translations
+- [X] Create exercise endpoint/service for Portuguese to Italian translation
+- [X] Implement AI integration for generating 10 simple Portuguese words
+- [X] Implement AI integration for generating correct Italian translations
 - [ ] Create API endpoint that returns words with their correct translations
 
 ## v0.3.0: Italian to Portuguese Translation Exercise

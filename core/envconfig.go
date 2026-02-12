@@ -35,7 +35,7 @@ func getEnvValue(key string) (string, error) {
 }
 
 func LoadEnvConfig() (*EnvConfig, error) {
-	godotenv.Load()
+	godotenv.Load("../.env")
 
 	openAIKey, err := getEnvValue("OPENAI_API_KEY")
 	if err != nil {
