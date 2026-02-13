@@ -15,6 +15,8 @@ type EnvConfig struct {
 	// Port  string
 }
 
+var envConfigData *EnvConfig
+
 // type LogConfig struct {
 // 	Style string
 // 	Level string
@@ -35,16 +37,16 @@ func getEnvValue(key string) (string, error) {
 	return value, nil
 }
 
-func LoadEnvConfig() (*EnvConfig, error) {
+func LoadEnvConfig() error {
 	godotenv.Load()
 
 	openAIKey, err := getEnvValue("OPENAI_API_KEY")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	port, err := getEnvValue("PORT")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	config := &EnvConfig{
@@ -52,5 +54,11 @@ func LoadEnvConfig() (*EnvConfig, error) {
 		OpenAIKey: openAIKey,
 	}
 
-	return config, nil
+	envConfigData = config
+
+	return nil
+}
+
+func GetEnvConfig() *EnvConfig {
+	return envConfigData
 }

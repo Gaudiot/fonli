@@ -1,7 +1,8 @@
-package httpservices
+package aiservice
 
 import (
 	"context"
+	"errors"
 
 	"gaudiot.com/fonli/core"
 	"github.com/openai/openai-go/v3"
@@ -9,11 +10,17 @@ import (
 	"github.com/openai/openai-go/v3/responses"
 )
 
-func GetOpenAIStructuredResponse(prompt string, model map[string]any) (string, error) {
+type OpenAIAIService struct{}
+
+func NewOpenAIAIService() *OpenAIAIService {
+	return &OpenAIAIService{}
+}
+
+func (s *OpenAIAIService) PromptWithStructuredResponse(prompt string, model map[string]any) (string, error) {
 	ctx := context.Background()
-	envConfig, err := core.LoadEnvConfig()
-	if err != nil {
-		return "", err
+	envConfig := core.GetEnvConfig()
+	if envConfig == nil {
+		return "", errors.New("environment configuration is not loaded")
 	}
 
 	client := openai.NewClient(option.WithAPIKey(envConfig.OpenAIKey))

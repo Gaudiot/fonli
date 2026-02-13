@@ -16,15 +16,15 @@ This document serves as a TDD (Test-Driven Development) guide for the Italian le
 - [X] Create exercise endpoint/service for Portuguese to Italian translation
 - [X] Implement AI integration for generating 10 simple Portuguese words
 - [X] Implement AI integration for generating correct Italian translations
-- [ ] Create API endpoint that returns words with their correct translations
+- [X] Create API endpoint that returns words with their correct translations
 
 ## v0.3.0: Italian to Portuguese Translation Exercise
 
 ### Tasks
-- [ ] Create exercise endpoint/service for Italian to Portuguese translation
-- [ ] Implement AI integration for generating 10 simple Italian words
-- [ ] Implement AI integration for generating correct Portuguese translations
-- [ ] Create API endpoint that returns words with their correct translations
+- [X] Create exercise endpoint/service for Italian to Portuguese translation
+- [X] Implement AI integration for generating 10 simple Italian words
+- [X] Implement AI integration for generating correct Portuguese translations
+- [X] Create API endpoint that returns words with their correct translations
 
 ## v0.4.0: Italian Verb Conjugation Exercise
 
