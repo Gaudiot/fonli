@@ -29,11 +29,11 @@ This document serves as a TDD (Test-Driven Development) guide for the Italian le
 ## v0.4.0: Italian Verb Conjugation Exercise
 
 ### Tasks
-- [ ] Create verb conjugation endpoint/service
-- [ ] Implement verb selection mechanism
-- [ ] Add tense selection feature
-- [ ] Implement AI integration for generating verb conjugations in all persons (1st, 2nd, 3rd - singular and plural)
-- [ ] Create API endpoint that returns verb with all conjugations for selected tense
+- [X] Create verb conjugation endpoint/service
+- [X] Implement verb selection mechanism
+- [X] Add tense selection feature
+- [X] Implement AI integration for generating verb conjugations in all persons (1st, 2nd, 3rd - singular and plural)
+- [X] Create API endpoint that returns verb with all conjugations for selected tense
 
 ## v0.5.0: Short Story Translation Exercise
 
