@@ -38,11 +38,11 @@ This document serves as a TDD (Test-Driven Development) guide for the Italian le
 ## v0.5.0: Short Story Translation Exercise
 
 ### Tasks
-- [ ] Create story translation endpoint/service
-- [ ] Implement AI integration for generating short Portuguese stories
-- [ ] Create API endpoint to receive user's translation
-- [ ] Implement AI integration for correcting and providing feedback on user's translation
-- [ ] Create API endpoint that returns corrected translation with feedback
+- [X] Create story translation endpoint/service
+- [X] Implement AI integration for generating short Portuguese stories
+- [X] Create API endpoint to receive user's translation
+- [X] Implement AI integration for correcting and providing feedback on user's translation
+- [X] Create API endpoint that returns corrected translation with feedback
 
 ## General TDD Guidelines
 

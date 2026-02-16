@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"gaudiot.com/fonli/core"
+	historytranslation "gaudiot.com/fonli/src/history_translation"
 	wordconjugationexercise "gaudiot.com/fonli/src/word_conjugation"
 	wordtranslationexercise "gaudiot.com/fonli/src/word_translation"
 	"github.com/go-chi/chi/v5"
@@ -21,6 +22,7 @@ func main() {
 	router := chi.NewRouter()
 	router.Route("/word-translation", wordtranslationexercise.WordTranslationRouter)
 	router.Route("/word-conjugation", wordconjugationexercise.WordConjugationRouter)
+	router.Route("/history-translation", historytranslation.HistoryTranslationRouter)
 
 	log.Printf("Server is running on port :%s", envConfig.Port)
 	http.ListenAndServe(":"+envConfig.Port, router)
