@@ -1,4 +1,4 @@
-package historytranslation
+package storytranslation
 
 import (
 	"encoding/json"
@@ -33,18 +33,18 @@ type EvaluateTranslationResponse struct {
 	CorrectTranslation string   `json:"correct_translation" jsonschema_description:"The correct translation of the original story in Italian"`
 }
 
-type HistoryTranslation struct {
+type StoryTranslation struct {
 	aiService aiservice.AIService
 }
 
-func NewHistoryTranslation(aiService aiservice.AIService) *HistoryTranslation {
-	return &HistoryTranslation{
+func NewStoryTranslation(aiService aiservice.AIService) *StoryTranslation {
+	return &StoryTranslation{
 		aiService: aiService,
 	}
 }
 
 // GenerateStory generates a medium-sized story in Portuguese for the user to translate
-func (h *HistoryTranslation) GenerateStory() (*GenerateStoryResponse, error) {
+func (h *StoryTranslation) GenerateStory() (*GenerateStoryResponse, error) {
 	nativeLanguage := base.Languages.Portuguese
 	foreignLanguage := base.Languages.Italian
 
@@ -70,7 +70,7 @@ func (h *HistoryTranslation) GenerateStory() (*GenerateStoryResponse, error) {
 }
 
 // EvaluateTranslation sends the original story and the user translation to AI to receive evaluation and feedback
-func (h *HistoryTranslation) EvaluateTranslation(originalStory, userTranslation string) (*EvaluateTranslationResponse, error) {
+func (h *StoryTranslation) EvaluateTranslation(originalStory, userTranslation string) (*EvaluateTranslationResponse, error) {
 	nativeLanguage := base.Languages.Portuguese
 	foreignLanguage := base.Languages.Italian
 

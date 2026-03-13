@@ -1,4 +1,4 @@
-package historytranslation
+package storytranslation
 
 import (
 	"encoding/json"
@@ -8,32 +8,34 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func HistoryTranslationRouter(router chi.Router) {
+func StoryTranslationRouter(router chi.Router) {
 	router.Get("/generate", func(w http.ResponseWriter, r *http.Request) {
 		aiService := aiservice.NewOpenAIAIService()
-		historyTranslation := NewHistoryTranslation(aiService)
+		storyTranslation := NewStoryTranslation(aiService)
 
-		story, err := historyTranslation.GenerateStory()
+		story, err := storyTranslation.GenerateStory()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(story)
 	})
 
 	router.Post("/evaluate", func(w http.ResponseWriter, r *http.Request) {
 		aiService := aiservice.NewOpenAIAIService()
-		historyTranslation := NewHistoryTranslation(aiService)
+		storyTranslation := NewStoryTranslation(aiService)
 
 		story := r.FormValue("story")
 		userTranslation := r.FormValue("userTranslation")
-		evaluation, err := historyTranslation.EvaluateTranslation(story, userTranslation)
+		evaluation, err := storyTranslation.EvaluateTranslation(story, userTranslation)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(evaluation)
 	})
 }

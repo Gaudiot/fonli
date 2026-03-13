@@ -1,4 +1,4 @@
-package historytranslation
+package storytranslation
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 )
 
 var mockAiService = &aiservice.AIServiceMock{}
-var historyTranslation = NewHistoryTranslation(mockAiService)
+var storyTranslation = NewStoryTranslation(mockAiService)
 
 func TestGenerateStory(t *testing.T) {
 	mockAiService.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
@@ -17,7 +17,7 @@ func TestGenerateStory(t *testing.T) {
 		}`, nil
 	}
 
-	got, err := historyTranslation.GenerateStory()
+	got, err := storyTranslation.GenerateStory()
 	if err != nil {
 		t.Errorf("GenerateStory() should not return an error, but got %v", err)
 	}
@@ -33,7 +33,7 @@ func TestGenerateStory_WithError(t *testing.T) {
 		return "", errors.New("AI service failed")
 	}
 
-	got, err := historyTranslation.GenerateStory()
+	got, err := storyTranslation.GenerateStory()
 	if err == nil {
 		t.Errorf("GenerateStory() should return an error when AI service fails, but got nil")
 	}
@@ -53,7 +53,7 @@ func TestEvaluateTranslation(t *testing.T) {
 
 	story := "Era uma vez uma menina que morava em uma pequena vila perto da floresta. Todos os dias, ela levava pão fresco para a avó."
 	userTranslation := "C'era una volta una ragazza che viveva in un piccolo villaggio vicino alla foresta. Lei portava pane fresco alla sua nonna ogni giorno."
-	got, err := historyTranslation.EvaluateTranslation(story, userTranslation)
+	got, err := storyTranslation.EvaluateTranslation(story, userTranslation)
 	if err != nil {
 		t.Errorf("EvaluateTranslation() should not return an error, but got %v", err)
 	}
@@ -83,7 +83,7 @@ func TestEvaluateTranslation_WithManyErrors_EnforcesScoreLimit(t *testing.T) {
 
 	story := "dummy"
 	userTranslation := "dummy"
-	got, err := historyTranslation.EvaluateTranslation(story, userTranslation)
+	got, err := storyTranslation.EvaluateTranslation(story, userTranslation)
 	if err != nil {
 		t.Errorf("EvaluateTranslation() should not return an error, but got %v", err)
 	}
@@ -99,7 +99,7 @@ func TestEvaluateTranslation_WithError(t *testing.T) {
 		return "", errors.New("AI service failed")
 	}
 
-	got, err := historyTranslation.EvaluateTranslation("dummy", "dummy")
+	got, err := storyTranslation.EvaluateTranslation("dummy", "dummy")
 	if err == nil {
 		t.Errorf("EvaluateTranslation() should return an error when AI service fails, but got nil")
 	}

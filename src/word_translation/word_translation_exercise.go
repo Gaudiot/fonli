@@ -42,11 +42,12 @@ func NewWordTranslation(aiService aiservice.AIService) *WordTranslation {
 	}
 }
 
-func (w *WordTranslation) NativeToForeignExercise(exercisesQuantity int) (*WordTranslationExercise, error) {
-	nativeLanguage := base.Languages.Portuguese
-	foreignLanguage := base.Languages.Italian
+func (w *WordTranslation) NativeToForeignExercise(exercisesQuantity int, nativeLanguageCode string, foreignLanguageCode string) (*WordTranslationExercise, error) {
+	nativeLanguage := base.LanguageFromCountryCode(nativeLanguageCode)
+	foreignLanguage := base.LanguageFromCountryCode(foreignLanguageCode)
 	exerciseSchema := GenerateSchema[WordTranslationExercise]()
 
+	fmt.Println(nativeLanguage, foreignLanguage, nativeLanguageCode, foreignLanguageCode, "native to foreign")
 	prompt := fmt.Sprintf(
 		`Create %d exercises for the user to translate simple words from %s to %s, the words should be common and used in daily life.
 		They can also be from less common scenarios like sports, olympics, vacation, party, etc.
@@ -58,6 +59,8 @@ func (w *WordTranslation) NativeToForeignExercise(exercisesQuantity int) (*WordT
 		nativeLanguage,
 		foreignLanguage,
 	)
+
+	fmt.Println(prompt)
 
 	response, err := w.aiService.PromptWithStructuredResponse(prompt, exerciseSchema)
 	if err != nil {
@@ -70,11 +73,12 @@ func (w *WordTranslation) NativeToForeignExercise(exercisesQuantity int) (*WordT
 	return &exercise, nil
 }
 
-func (w *WordTranslation) ForeignToNativeExercise(exercisesQuantity int) (*WordTranslationExercise, error) {
-	nativeLanguage := base.Languages.Portuguese
-	foreignLanguage := base.Languages.Italian
+func (w *WordTranslation) ForeignToNativeExercise(exercisesQuantity int, foreignLanguageCode string, nativeLanguageCode string) (*WordTranslationExercise, error) {
+	nativeLanguage := base.LanguageFromCountryCode(nativeLanguageCode)
+	foreignLanguage := base.LanguageFromCountryCode(foreignLanguageCode)
 	exerciseSchema := GenerateSchema[WordTranslationExercise]()
 
+	fmt.Println(nativeLanguage, foreignLanguage, nativeLanguageCode, foreignLanguageCode, "foreign to native")
 	prompt := fmt.Sprintf(
 		`Create %d exercises for the user to translate simple words from %s to %s, the words should be common and used in daily life.
 		They can also be from less common scenarios like sports, olympics, vacation, party, etc.
@@ -86,6 +90,8 @@ func (w *WordTranslation) ForeignToNativeExercise(exercisesQuantity int) (*WordT
 		foreignLanguage,
 		nativeLanguage,
 	)
+
+	fmt.Println(prompt)
 
 	response, err := w.aiService.PromptWithStructuredResponse(prompt, exerciseSchema)
 	if err != nil {
