@@ -31,8 +31,8 @@ func NewWordConjugation(aiService aiservice.AIService) *WordConjugation {
 	}
 }
 
-func (w *WordConjugation) GenerateExercise(tense base.Tense) (*WordConjugationExercise, error) {
-	foreignLanguage := base.Languages.Italian
+func (w *WordConjugation) GenerateExercise(tense base.Tense, foreignLanguageCode string) (*WordConjugationExercise, error) {
+	foreignLanguage := base.LanguageFromCountryCode(foreignLanguageCode)
 	exerciseSchema := wordtranslationexercise.GenerateSchema[WordConjugationExercise]()
 
 	prompt := fmt.Sprintf(

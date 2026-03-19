@@ -44,9 +44,9 @@ func NewStoryTranslation(aiService aiservice.AIService) *StoryTranslation {
 }
 
 // GenerateStory generates a medium-sized story in Portuguese for the user to translate
-func (h *StoryTranslation) GenerateStory() (*GenerateStoryResponse, error) {
-	nativeLanguage := base.Languages.Portuguese
-	foreignLanguage := base.Languages.Italian
+func (h *StoryTranslation) GenerateStory(nativeLanguageCode string, foreignLanguageCode string) (*GenerateStoryResponse, error) {
+	nativeLanguage := base.LanguageFromCountryCode(nativeLanguageCode)
+	foreignLanguage := base.LanguageFromCountryCode(foreignLanguageCode)
 
 	schema := generateSchema[GenerateStoryResponse]()
 	prompt := fmt.Sprintf(
@@ -70,9 +70,9 @@ func (h *StoryTranslation) GenerateStory() (*GenerateStoryResponse, error) {
 }
 
 // EvaluateTranslation sends the original story and the user translation to AI to receive evaluation and feedback
-func (h *StoryTranslation) EvaluateTranslation(originalStory, userTranslation string) (*EvaluateTranslationResponse, error) {
-	nativeLanguage := base.Languages.Portuguese
-	foreignLanguage := base.Languages.Italian
+func (h *StoryTranslation) EvaluateTranslation(originalStory, userTranslation string, nativeLanguageCode string, foreignLanguageCode string) (*EvaluateTranslationResponse, error) {
+	nativeLanguage := base.LanguageFromCountryCode(nativeLanguageCode)
+	foreignLanguage := base.LanguageFromCountryCode(foreignLanguageCode)
 
 	schema := generateSchema[EvaluateTranslationResponse]()
 	prompt := fmt.Sprintf(

@@ -11,6 +11,8 @@ import (
 
 func WordConjugationRouter(router chi.Router) {
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		foreignLanguageCode := r.URL.Query().Get("fl")
+
 		aiService := aiservice.NewOpenAIAIService()
 		wordConjugation := NewWordConjugation(aiService)
 
@@ -18,7 +20,7 @@ func WordConjugationRouter(router chi.Router) {
 		rawTense := query.Get("tense")
 		tense := base.GetTense(rawTense)
 
-		exercises, err := wordConjugation.GenerateExercise(tense)
+		exercises, err := wordConjugation.GenerateExercise(tense, foreignLanguageCode)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

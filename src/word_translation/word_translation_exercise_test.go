@@ -31,7 +31,7 @@ func TestNativeToForeignExercise(t *testing.T) {
 	}
 
 	exercisesQuantity := 3
-	got, err := wordTranslation.NativeToForeignExercise(exercisesQuantity)
+	got, err := wordTranslation.NativeToForeignExercise(exercisesQuantity, "pt", "it")
 
 	if err != nil {
 		t.Errorf("NativeToForeignExercise(%d) should not return an error, but got %v", exercisesQuantity, err)
@@ -72,7 +72,7 @@ func TestForeignToNativeExercise(t *testing.T) {
 	}
 
 	exercisesQuantity := 3
-	got, err := wordTranslation.ForeignToNativeExercise(exercisesQuantity)
+	got, err := wordTranslation.ForeignToNativeExercise(exercisesQuantity, "it", "pt")
 
 	if err != nil {
 		t.Errorf("ForeignToNativeExercise(%d) should not return an error, but got %v", exercisesQuantity, err)
@@ -98,7 +98,7 @@ func TestNativeToForeignExercise_WithError(t *testing.T) {
 	}
 
 	exercisesQuantity := 3
-	got, err := wordTranslation.NativeToForeignExercise(exercisesQuantity)
+	got, err := wordTranslation.NativeToForeignExercise(exercisesQuantity, "pt", "it")
 
 	if err == nil {
 		t.Errorf("NativeToForeignExercise(%d) should return an error when AI service fails, but got nil", exercisesQuantity)
@@ -115,7 +115,7 @@ func TestForeignToNativeExercise_WithError(t *testing.T) {
 	}
 
 	exercisesQuantity := 3
-	got, err := wordTranslation.ForeignToNativeExercise(exercisesQuantity)
+	got, err := wordTranslation.ForeignToNativeExercise(exercisesQuantity, "it", "pt")
 
 	if err == nil {
 		t.Errorf("ForeignToNativeExercise(%d) should return an error when AI service fails, but got nil", exercisesQuantity)

@@ -50,7 +50,7 @@ func TestWordConjugationExercise(t *testing.T) {
 		}`, nil
 	}
 
-	got, err := wordConjugation.GenerateExercise(base.PresentSimple)
+	got, err := wordConjugation.GenerateExercise(base.PresentSimple, "it")
 
 	if err != nil {
 		t.Errorf("GenerateExercise() should not return an error, but got %v", err)

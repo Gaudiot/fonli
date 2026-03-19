@@ -10,10 +10,13 @@ import (
 
 func StoryTranslationRouter(router chi.Router) {
 	router.Get("/generate", func(w http.ResponseWriter, r *http.Request) {
+		nativeLanguageCode := r.URL.Query().Get("nl")
+		foreignLanguageCode := r.URL.Query().Get("fl")
+
 		aiService := aiservice.NewOpenAIAIService()
 		storyTranslation := NewStoryTranslation(aiService)
 
-		story, err := storyTranslation.GenerateStory()
+		story, err := storyTranslation.GenerateStory(nativeLanguageCode, foreignLanguageCode)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -24,12 +27,15 @@ func StoryTranslationRouter(router chi.Router) {
 	})
 
 	router.Post("/evaluate", func(w http.ResponseWriter, r *http.Request) {
+		nativeLanguageCode := r.URL.Query().Get("nl")
+		foreignLanguageCode := r.URL.Query().Get("fl")
+
 		aiService := aiservice.NewOpenAIAIService()
 		storyTranslation := NewStoryTranslation(aiService)
 
 		story := r.FormValue("story")
 		userTranslation := r.FormValue("userTranslation")
-		evaluation, err := storyTranslation.EvaluateTranslation(story, userTranslation)
+		evaluation, err := storyTranslation.EvaluateTranslation(story, userTranslation, nativeLanguageCode, foreignLanguageCode)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
