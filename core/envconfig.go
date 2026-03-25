@@ -11,6 +11,7 @@ import (
 type EnvConfig struct {
 	Port      string
 	OpenAIKey string
+	JWTSecret string
 	// DB    PostgresConfig
 	// Port  string
 }
@@ -44,7 +45,13 @@ func LoadEnvConfig() error {
 	if err != nil {
 		return err
 	}
+
 	port, err := getEnvValue("PORT")
+	if err != nil {
+		return err
+	}
+
+	jwtSecret, err := getEnvValue("JWT_SECRET")
 	if err != nil {
 		return err
 	}
@@ -52,6 +59,7 @@ func LoadEnvConfig() error {
 	config := &EnvConfig{
 		Port:      port,
 		OpenAIKey: openAIKey,
+		JWTSecret: jwtSecret,
 	}
 
 	envConfigData = config
