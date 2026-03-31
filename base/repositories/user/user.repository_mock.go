@@ -63,6 +63,11 @@ func (r *UserRepositoryMock) DeleteUser(userID string) error {
 	return nil
 }
 
+func (r *UserRepositoryMock) UpdateUserLifestyle(userID, lifestyle, lifestyleTopics string) error {
+	r.Users[userID].Lifestyle = lifestyle
+	r.Users[userID].LifestyleTopics = lifestyleTopics
+	return nil
+}
 func formatUsername(username string) string {
 	formattedUsername := strings.ToLower(username)
 

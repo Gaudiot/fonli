@@ -6,6 +6,8 @@ type User struct {
 	Password          string
 	Username          string
 	CanonicalUsername string
+	Lifestyle         string
+	LifestyleTopics   string
 }
 
 type UserRepository interface {
@@ -15,4 +17,6 @@ type UserRepository interface {
 	GetUserByEmailOrUsername(text string) (*User, error)
 	CreateUser(email, password, username string) (*User, error)
 	DeleteUser(userID string) error
+
+	UpdateUserLifestyle(userID, lifestyle, lifestyleTopics string) error
 }
