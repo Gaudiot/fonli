@@ -27,17 +27,17 @@ type accessTokenClaims struct {
 	jwt.RegisteredClaims
 }
 
-type TokenService struct {
+type TokenServiceImpl struct {
 	signingKey []byte
 }
 
-func NewTokenService(signingKey []byte) *TokenService {
-	return &TokenService{
+func NewTokenService(signingKey []byte) *TokenServiceImpl {
+	return &TokenServiceImpl{
 		signingKey: signingKey,
 	}
 }
 
-func (tk *TokenService) GenerateAccessToken(userID string) (string, error) {
+func (tk *TokenServiceImpl) GenerateAccessToken(userID string) (string, error) {
 	if userID == "" {
 		return "", ErrInvalidAccessTokenPayload
 	}
@@ -63,7 +63,7 @@ func (tk *TokenService) GenerateAccessToken(userID string) (string, error) {
 	return signedToken, nil
 }
 
-func (tk *TokenService) ParseAccessToken(tokenString string) (*accessTokenClaims, error) {
+func (tk *TokenServiceImpl) ParseAccessToken(tokenString string) (*accessTokenClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &accessTokenClaims{}, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ErrInvalidSigningMethod
@@ -85,7 +85,7 @@ func (tk *TokenService) ParseAccessToken(tokenString string) (*accessTokenClaims
 	return claims, nil
 }
 
-func (tk *TokenService) GenerateRefreshToken() string {
+func (tk *TokenServiceImpl) GenerateRefreshToken() string {
 	refreshToken := uuid.New().String()
 
 	return refreshToken
