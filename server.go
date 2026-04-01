@@ -40,9 +40,13 @@ func main() {
 
 	router.Route("/user", user_settings.UserSettingsRouter(userSettingsService, tokenService))
 
-	router.Route("/word-translation", wordtranslationexercise.WordTranslationRouter)
-	router.Route("/word-conjugation", wordconjugationexercise.WordConjugationRouter)
-	router.Route("/history-translation", storytranslation.StoryTranslationRouter)
+	wordTranslation := wordtranslationexercise.NewWordTranslation(aiService)
+	wordConjugation := wordconjugationexercise.NewWordConjugation(aiService)
+	storyTranslation := storytranslation.NewStoryTranslation(aiService)
+
+	router.Route("/word-translation", wordtranslationexercise.WordTranslationRouter(wordTranslation, tokenService))
+	router.Route("/word-conjugation", wordconjugationexercise.WordConjugationRouter(wordConjugation, tokenService))
+	router.Route("/history-translation", storytranslation.StoryTranslationRouter(storyTranslation, tokenService))
 
 	log.Printf("Server is running on port :%s", envConfig.Port)
 	http.ListenAndServe(":"+envConfig.Port, router)
