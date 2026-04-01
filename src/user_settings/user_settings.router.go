@@ -2,7 +2,7 @@ package user_settings
 
 import (
 	"encoding/json"
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"gaudiot.com/fonli/core/middlewares"
@@ -49,14 +49,14 @@ func handleGetLifestyle(us *UserSettingsService) http.HandlerFunc {
 		ctx := r.Context()
 		userID, userExists := middlewares.UserIDFromContext(ctx)
 		if !userExists {
-			fmt.Println("user not authenticated")
+			slog.Warn("user not authenticated")
 			writeError(w, http.StatusUnauthorized, "user not authenticated")
 			return
 		}
 
 		lifestyle, err := us.GetUserLifestyle(userID)
 		if err != nil {
-			fmt.Println("internal server error", err)
+			slog.Error("failed to get user lifestyle", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
@@ -69,25 +69,25 @@ func handleUpdateLifestyle(us *UserSettingsService) http.HandlerFunc {
 		ctx := r.Context()
 		userID, userExists := middlewares.UserIDFromContext(ctx)
 		if !userExists {
-			fmt.Println("user not authenticated")
+			slog.Warn("user not authenticated")
 			writeError(w, http.StatusUnauthorized, "user not authenticated")
 			return
 		}
 
 		var req updateLifestyleRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			fmt.Println("invalid request body", err)
+			slog.Warn("invalid request body", "error", err)
 			writeError(w, http.StatusBadRequest, "invalid request body")
 			return
 		}
 
 		err := us.UpdateUserLifestyle(userID, req.Text)
 		if err != nil {
-			fmt.Println("internal server error", err)
+			slog.Error("failed to update user lifestyle", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
-		fmt.Println("lifestyle updated successfully")
+		slog.Info("lifestyle updated", "userID", userID)
 		writeJSON(w, http.StatusOK, "lifestyle updated successfully")
 	}
 }

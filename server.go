@@ -3,11 +3,13 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
 	refreshtoken_repo "gaudiot.com/fonli/base/repositories/refresh_token"
 	user_repo "gaudiot.com/fonli/base/repositories/user"
 	"gaudiot.com/fonli/core"
+	"gaudiot.com/fonli/core/middlewares"
 	"gaudiot.com/fonli/core/security/password"
 	"gaudiot.com/fonli/core/security/tokens"
 	"gaudiot.com/fonli/src/authentication"
@@ -17,6 +19,17 @@ import (
 	wordconjugationexercise "gaudiot.com/fonli/src/word_conjugation"
 	wordtranslationexercise "gaudiot.com/fonli/src/word_translation"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httprate"
+)
+
+const (
+	maxBytes = 1 << 20 // 1MB
+
+	requestTimeout = 30 * time.Second
+
+	authRateLimit    = 10
+	defaultRateLimit = 20
 )
 
 func main() {
@@ -36,16 +49,28 @@ func main() {
 	refreshTokenRepository := &refreshtoken_repo.RefreshTokenRepositoryMock{RefreshTokens: make(map[string]*refreshtoken_repo.RefreshToken)}
 	authService := authentication.NewAuthService(tokenService, passwordService, userRepository, refreshTokenRepository)
 
-	router := chi.NewRouter()
-	router.Route("/auth", authentication.AuthenticationRouter(authService))
-
-	router.Route("/user", user_settings.UserSettingsRouter(userSettingsService, tokenService))
-
 	wordTranslation := wordtranslationexercise.NewWordTranslation(aiService)
 	wordConjugation := wordconjugationexercise.NewWordConjugation(aiService)
 	storyTranslation := storytranslation.NewStoryTranslation(aiService)
 
-	router.Route("/exercises", exercises.ExercisesRouter(wordConjugation, wordTranslation, storyTranslation, tokenService))
+	router := chi.NewRouter()
+	router.Use(middlewares.MaxBytesMiddleware(maxBytes))
+	router.Use(middleware.Timeout(requestTimeout))
+
+	authRateLimiter := httprate.LimitByIP(authRateLimit, time.Minute)
+	defaultRateLimiter := httprate.LimitByIP(defaultRateLimit, time.Minute)
+
+	router.Group(func(r chi.Router) {
+		r.Use(authRateLimiter)
+		r.Route("/auth", authentication.AuthenticationRouter(authService))
+	})
+
+	router.Group(func(r chi.Router) {
+		r.Use(defaultRateLimiter)
+		r.Route("/user", user_settings.UserSettingsRouter(userSettingsService, tokenService))
+
+		r.Route("/exercises", exercises.ExercisesRouter(wordConjugation, wordTranslation, storyTranslation, tokenService))
+	})
 
 	log.Printf("Server is running on port :%s", envConfig.Port)
 	http.ListenAndServe(":"+envConfig.Port, router)

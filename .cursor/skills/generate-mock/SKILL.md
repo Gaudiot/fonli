@@ -9,22 +9,24 @@ description: Generate or update a Go mock file from an interface definition. Cre
 
 1. **Read the source file** containing the interface to mock.
 2. **Identify the interface** and all its methods, including parameter types and return types.
-3. **Determine the file name** from the source file pattern: if the source is `user.repository.go`, the mock file is `user.repository_mock.go` in the same directory.
+3. **Determine the file name** from the source file pattern (see File Naming section below).
 4. **Check if the mock file already exists** — if so, update it preserving any custom helper functions defined outside the mock struct and its methods.
 5. **Generate or update the mock file** following the structure below.
 6. **Run `go vet`** on the generated file to verify correctness.
 
 ## File Naming
 
-Derive the mock file name from the source file:
+Derive the mock file name from the source file using two rules:
 
-| Source file | Mock file |
-|---|---|
-| `user.repository.go` | `user.repository_mock.go` |
-| `ai_service.go` | `ai_service_mock.go` |
-| `payment.gateway.go` | `payment.gateway_mock.go` |
+1. If the source file ends with `.interface.go`, replace `.interface.go` with `.mock.go`.
+2. Otherwise, insert `_mock` before `.go`.
 
-Rule: insert `_mock` before `.go` in the source file name.
+| Source file | Mock file | Rule applied |
+|---|---|---|
+| `user_repository.interface.go` | `user_repository.mock.go` | `.interface.go` → `.mock.go` |
+| `token_service.interface.go` | `token_service.mock.go` | `.interface.go` → `.mock.go` |
+| `ai_service.interface.go` | `ai_service.mock.go` | `.interface.go` → `.mock.go` |
+| `payment.gateway.go` | `payment.gateway_mock.go` | insert `_mock` before `.go` |
 
 ## Mock Structure
 
@@ -147,7 +149,7 @@ When a mock file already exists:
 Before finishing, verify:
 
 - [ ] Mock file created/updated in the same directory as the interface
-- [ ] File name follows `<source>_mock.go` convention
+- [ ] File name follows the naming convention (`.interface.go` → `.mock.go`, otherwise `_mock.go`)
 - [ ] Every interface method has a corresponding `Func` field, `CallCount` field, and method implementation
 - [ ] Zero-value defaults are correct for all return types
 - [ ] `go vet` passes on the generated file

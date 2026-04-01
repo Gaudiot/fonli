@@ -2,7 +2,7 @@ package wordconjugationexercise
 
 import (
 	"encoding/json"
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"gaudiot.com/fonli/base"
@@ -43,7 +43,7 @@ func handleGenerateExercise(wc *WordConjugation) http.HandlerFunc {
 
 		exercises, err := wc.GenerateExercise(tense, foreignLanguageCode)
 		if err != nil {
-			fmt.Println("internal server error", err)
+			slog.Error("failed to generate conjugation exercise", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}

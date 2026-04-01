@@ -2,7 +2,7 @@ package wordtranslationexercise
 
 import (
 	"encoding/json"
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -42,7 +42,7 @@ func handleNativeToForeignExercise(wt *WordTranslation) http.HandlerFunc {
 
 		exercises, err := wt.NativeToForeignExercise(10, nl, fl)
 		if err != nil {
-			fmt.Println("internal server error", err)
+			slog.Error("failed to generate native-to-foreign exercise", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
@@ -58,7 +58,7 @@ func handleForeignToNativeExercise(wt *WordTranslation) http.HandlerFunc {
 
 		exercises, err := wt.ForeignToNativeExercise(10, fl, nl)
 		if err != nil {
-			fmt.Println("internal server error", err)
+			slog.Error("failed to generate foreign-to-native exercise", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}

@@ -2,7 +2,7 @@ package storytranslation
 
 import (
 	"encoding/json"
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -49,7 +49,7 @@ func handleGenerateStory(st *StoryTranslation) http.HandlerFunc {
 
 		story, err := st.GenerateStory(nativeLanguageCode, foreignLanguageCode)
 		if err != nil {
-			fmt.Println("internal server error", err)
+			slog.Error("failed to generate story", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
@@ -65,14 +65,14 @@ func handleEvaluateTranslation(st *StoryTranslation) http.HandlerFunc {
 
 		var req evaluateTranslationRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			fmt.Println("invalid request body", err)
+			slog.Warn("invalid request body", "error", err)
 			writeError(w, http.StatusBadRequest, "invalid request body")
 			return
 		}
 
 		evaluation, err := st.EvaluateTranslation(req.Story, req.UserTranslation, nativeLanguageCode, foreignLanguageCode)
 		if err != nil {
-			fmt.Println("internal server error", err)
+			slog.Error("failed to evaluate translation", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}

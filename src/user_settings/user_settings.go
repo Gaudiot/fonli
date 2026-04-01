@@ -55,7 +55,7 @@ func (us *UserSettingsService) UpdateUserLifestyle(userID, text string) error {
 		return err
 	}
 
-	fmt.Println(response)
+	us.userRepository.UpdateUserLifestyle(userID, text, response)
 
 	return nil
 }
