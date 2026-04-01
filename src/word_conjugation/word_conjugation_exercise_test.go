@@ -7,11 +7,11 @@ import (
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
 )
 
-var mockAiService = &aiservice.AIServiceMock{}
-var wordConjugation = NewWordConjugation(mockAiService)
-
 func TestWordConjugationExercise(t *testing.T) {
-	mockAiService.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
+	mockAI := &aiservice.AIServiceMock{}
+	wc := NewWordConjugation(mockAI)
+
+	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
 			"word": "parlare",
 			"tense": "presente",
@@ -50,7 +50,7 @@ func TestWordConjugationExercise(t *testing.T) {
 		}`, nil
 	}
 
-	got, err := wordConjugation.GenerateExercise(base.PresentSimple, "it")
+	got, err := wc.GenerateExercise(base.PresentSimple, "it")
 
 	if err != nil {
 		t.Errorf("GenerateExercise() should not return an error, but got %v", err)

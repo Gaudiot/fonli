@@ -7,17 +7,17 @@ import (
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
 )
 
-var mockAiService = &aiservice.AIServiceMock{}
-var storyTranslation = NewStoryTranslation(mockAiService)
-
 func TestGenerateStory(t *testing.T) {
-	mockAiService.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
+	mockAI := &aiservice.AIServiceMock{}
+	st := NewStoryTranslation(mockAI)
+
+	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
 			"story": "Era uma vez uma menina que morava em uma pequena vila perto da floresta. Todos os dias, ela levava pão fresco para a avó."
 		}`, nil
 	}
 
-	got, err := storyTranslation.GenerateStory("pt", "it")
+	got, err := st.GenerateStory("pt", "it")
 	if err != nil {
 		t.Errorf("GenerateStory() should not return an error, but got %v", err)
 	}
@@ -29,11 +29,14 @@ func TestGenerateStory(t *testing.T) {
 }
 
 func TestGenerateStory_WithError(t *testing.T) {
-	mockAiService.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
+	mockAI := &aiservice.AIServiceMock{}
+	st := NewStoryTranslation(mockAI)
+
+	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return "", errors.New("AI service failed")
 	}
 
-	got, err := storyTranslation.GenerateStory("pt", "it")
+	got, err := st.GenerateStory("pt", "it")
 	if err == nil {
 		t.Errorf("GenerateStory() should return an error when AI service fails, but got nil")
 	}
@@ -43,7 +46,10 @@ func TestGenerateStory_WithError(t *testing.T) {
 }
 
 func TestEvaluateTranslation(t *testing.T) {
-	mockAiService.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
+	mockAI := &aiservice.AIServiceMock{}
+	st := NewStoryTranslation(mockAI)
+
+	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
 			"score": 9,
 			"errors": ["Verb agreement error in the second sentence.", "Incorrect usage of the definite article."],
@@ -53,7 +59,7 @@ func TestEvaluateTranslation(t *testing.T) {
 
 	story := "Era uma vez uma menina que morava em uma pequena vila perto da floresta. Todos os dias, ela levava pão fresco para a avó."
 	userTranslation := "C'era una volta una ragazza che viveva in un piccolo villaggio vicino alla foresta. Lei portava pane fresco alla sua nonna ogni giorno."
-	got, err := storyTranslation.EvaluateTranslation(story, userTranslation, "pt", "it")
+	got, err := st.EvaluateTranslation(story, userTranslation, "pt", "it")
 	if err != nil {
 		t.Errorf("EvaluateTranslation() should not return an error, but got %v", err)
 	}
@@ -73,7 +79,10 @@ func TestEvaluateTranslation(t *testing.T) {
 }
 
 func TestEvaluateTranslation_WithManyErrors_EnforcesScoreLimit(t *testing.T) {
-	mockAiService.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
+	mockAI := &aiservice.AIServiceMock{}
+	st := NewStoryTranslation(mockAI)
+
+	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
 			"score": 10,
 			"errors": ["Error1", "Error2", "Error3", "Error4", "Error5", "Error6", "Error7", "Error8", "Error9", "Error10", "Error11"],
@@ -83,23 +92,25 @@ func TestEvaluateTranslation_WithManyErrors_EnforcesScoreLimit(t *testing.T) {
 
 	story := "dummy"
 	userTranslation := "dummy"
-	got, err := storyTranslation.EvaluateTranslation(story, userTranslation, "pt", "it")
+	got, err := st.EvaluateTranslation(story, userTranslation, "pt", "it")
 	if err != nil {
 		t.Errorf("EvaluateTranslation() should not return an error, but got %v", err)
 	}
 
-	// The score must not be above 10, regardless of error count
 	if got.Score > 10 {
 		t.Errorf("EvaluateTranslation() should not return a score higher than 10 when there are many errors, got %d", got.Score)
 	}
 }
 
 func TestEvaluateTranslation_WithError(t *testing.T) {
-	mockAiService.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
+	mockAI := &aiservice.AIServiceMock{}
+	st := NewStoryTranslation(mockAI)
+
+	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return "", errors.New("AI service failed")
 	}
 
-	got, err := storyTranslation.EvaluateTranslation("dummy", "dummy", "pt", "it")
+	got, err := st.EvaluateTranslation("dummy", "dummy", "pt", "it")
 	if err == nil {
 		t.Errorf("EvaluateTranslation() should return an error when AI service fails, but got nil")
 	}

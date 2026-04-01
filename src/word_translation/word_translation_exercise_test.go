@@ -7,11 +7,11 @@ import (
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
 )
 
-var mockAiService = &aiservice.AIServiceMock{}
-var wordTranslation = NewWordTranslation(mockAiService)
-
 func TestNativeToForeignExercise(t *testing.T) {
-	mockAiService.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
+	mockAI := &aiservice.AIServiceMock{}
+	wt := NewWordTranslation(mockAI)
+
+	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
 			"questions": [
 				{
@@ -31,7 +31,7 @@ func TestNativeToForeignExercise(t *testing.T) {
 	}
 
 	exercisesQuantity := 3
-	got, err := wordTranslation.NativeToForeignExercise(exercisesQuantity, "pt", "it")
+	got, err := wt.NativeToForeignExercise(exercisesQuantity, "pt", "it")
 
 	if err != nil {
 		t.Errorf("NativeToForeignExercise(%d) should not return an error, but got %v", exercisesQuantity, err)
@@ -41,18 +41,20 @@ func TestNativeToForeignExercise(t *testing.T) {
 		t.Errorf("NativeToForeignExercise(%d) should have %d questions, but has %d", exercisesQuantity, exercisesQuantity, len(got.Questions))
 	}
 
-	// Verify first question
 	if got.Questions[1].Word != "carro" {
-		t.Errorf("NativeToForeignExercise: expected first word to be 'casa', got '%s'", got.Questions[0].Word)
+		t.Errorf("NativeToForeignExercise: expected second word to be 'carro', got '%s'", got.Questions[1].Word)
 	}
 
 	if got.Questions[1].Translation != "macchina" {
-		t.Errorf("NativeToForeignExercise: expected first translation to be 'casa', got '%s'", got.Questions[0].Translation)
+		t.Errorf("NativeToForeignExercise: expected second translation to be 'macchina', got '%s'", got.Questions[1].Translation)
 	}
 }
 
 func TestForeignToNativeExercise(t *testing.T) {
-	mockAiService.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
+	mockAI := &aiservice.AIServiceMock{}
+	wt := NewWordTranslation(mockAI)
+
+	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
 			"questions": [
 				{
@@ -72,7 +74,7 @@ func TestForeignToNativeExercise(t *testing.T) {
 	}
 
 	exercisesQuantity := 3
-	got, err := wordTranslation.ForeignToNativeExercise(exercisesQuantity, "it", "pt")
+	got, err := wt.ForeignToNativeExercise(exercisesQuantity, "it", "pt")
 
 	if err != nil {
 		t.Errorf("ForeignToNativeExercise(%d) should not return an error, but got %v", exercisesQuantity, err)
@@ -82,7 +84,6 @@ func TestForeignToNativeExercise(t *testing.T) {
 		t.Errorf("ForeignToNativeExercise(%d) should have %d questions, but has %d", exercisesQuantity, exercisesQuantity, len(got.Questions))
 	}
 
-	// Verify first question
 	if got.Questions[0].Word != "casa" {
 		t.Errorf("ForeignToNativeExercise: expected first word to be 'casa', got '%s'", got.Questions[0].Word)
 	}
@@ -93,12 +94,15 @@ func TestForeignToNativeExercise(t *testing.T) {
 }
 
 func TestNativeToForeignExercise_WithError(t *testing.T) {
-	mockAiService.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
+	mockAI := &aiservice.AIServiceMock{}
+	wt := NewWordTranslation(mockAI)
+
+	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return "", errors.New("AI service failed")
 	}
 
 	exercisesQuantity := 3
-	got, err := wordTranslation.NativeToForeignExercise(exercisesQuantity, "pt", "it")
+	got, err := wt.NativeToForeignExercise(exercisesQuantity, "pt", "it")
 
 	if err == nil {
 		t.Errorf("NativeToForeignExercise(%d) should return an error when AI service fails, but got nil", exercisesQuantity)
@@ -110,12 +114,15 @@ func TestNativeToForeignExercise_WithError(t *testing.T) {
 }
 
 func TestForeignToNativeExercise_WithError(t *testing.T) {
-	mockAiService.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
+	mockAI := &aiservice.AIServiceMock{}
+	wt := NewWordTranslation(mockAI)
+
+	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return "", errors.New("AI service failed")
 	}
 
 	exercisesQuantity := 3
-	got, err := wordTranslation.ForeignToNativeExercise(exercisesQuantity, "it", "pt")
+	got, err := wt.ForeignToNativeExercise(exercisesQuantity, "it", "pt")
 
 	if err == nil {
 		t.Errorf("ForeignToNativeExercise(%d) should return an error when AI service fails, but got nil", exercisesQuantity)
