@@ -6,8 +6,6 @@ import (
 	"net/http"
 
 	"gaudiot.com/fonli/base"
-	"gaudiot.com/fonli/core/middlewares"
-	"gaudiot.com/fonli/core/security/tokens"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -29,9 +27,8 @@ func writeError(w http.ResponseWriter, status int, message string) {
 
 // MARK: - Router
 
-func WordConjugationRouter(wc *WordConjugation, ts *tokens.TokenService) func(chi.Router) {
+func WordConjugationRouter(wc *WordConjugation) func(chi.Router) {
 	return func(router chi.Router) {
-		router.Use(middlewares.AuthMiddleware(ts))
 		router.Get("/", handleGenerateExercise(wc))
 	}
 }

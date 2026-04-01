@@ -17,14 +17,14 @@ func ExercisesRouter(
 	wc *wordconjugationexercise.WordConjugation,
 	wt *wordtranslationexercise.WordTranslation,
 	st *storytranslation.StoryTranslation,
-	ts *tokens.TokenService,
+	ts tokens.TokenService,
 ) func(chi.Router) {
 	return func(router chi.Router) {
 		router.Use(middlewares.AuthMiddleware(ts))
 
-		router.Route("/word-conjugation", wordconjugationexercise.WordConjugationRouter(wc, ts))
-		router.Route("/word-translation", wordtranslationexercise.WordTranslationRouter(wt, ts))
-		router.Route("/story-translation", storytranslation.StoryTranslationRouter(st, ts))
+		router.Route("/word-conjugation", wordconjugationexercise.WordConjugationRouter(wc))
+		router.Route("/word-translation", wordtranslationexercise.WordTranslationRouter(wt))
+		router.Route("/story-translation", storytranslation.StoryTranslationRouter(st))
 		router.Get("/", handleRoot())
 	}
 }

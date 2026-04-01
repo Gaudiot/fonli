@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"gaudiot.com/fonli/core/middlewares"
-	"gaudiot.com/fonli/core/security/tokens"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -28,9 +26,8 @@ func writeError(w http.ResponseWriter, status int, message string) {
 
 // MARK: - Router
 
-func WordTranslationRouter(wt *WordTranslation, ts *tokens.TokenService) func(chi.Router) {
+func WordTranslationRouter(wt *WordTranslation) func(chi.Router) {
 	return func(router chi.Router) {
-		router.Use(middlewares.AuthMiddleware(ts))
 		router.Get("/native-to-foreign", handleNativeToForeignExercise(wt))
 		router.Get("/foreign-to-native", handleForeignToNativeExercise(wt))
 	}
