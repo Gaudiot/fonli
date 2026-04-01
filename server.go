@@ -34,7 +34,7 @@ func main() {
 	aiService := &aiservice.OpenAIAIService{}
 	userSettingsService := user_settings.NewUserSettingsService(userRepository, aiService)
 	refreshTokenRepository := &refreshtoken_repo.RefreshTokenRepositoryMock{RefreshTokens: make(map[string]*refreshtoken_repo.RefreshToken)}
-	authService := authentication.NewAuthService(*tokenService, passwordService, userRepository, refreshTokenRepository)
+	authService := authentication.NewAuthService(tokenService, passwordService, userRepository, refreshTokenRepository)
 
 	router := chi.NewRouter()
 	router.Route("/auth", authentication.AuthenticationRouter(authService))

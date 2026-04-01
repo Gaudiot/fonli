@@ -17,7 +17,7 @@ func newTestAuthServiceEmptyUsers() *AuthService {
 	passwordServiceMock := password.PasswordServiceMock{}
 	userRepositoryMock := repository.UserRepositoryMock{Users: emptyUsers}
 	refreshTokenRepositoryMock := refreshtoken_repository.RefreshTokenRepositoryMock{RefreshTokens: make(map[string]*refreshtoken_repository.RefreshToken)}
-	return NewAuthService(*tokenServiceMock, &passwordServiceMock, &userRepositoryMock, &refreshTokenRepositoryMock)
+	return NewAuthService(tokenServiceMock, &passwordServiceMock, &userRepositoryMock, &refreshTokenRepositoryMock)
 }
 
 func newTestAuthServiceWithUsers() *AuthService {
@@ -48,7 +48,7 @@ func newTestAuthServiceWithUsers() *AuthService {
 	passwordServiceMock := password.PasswordServiceMock{}
 	userRepositoryMock := repository.UserRepositoryMock{Users: validUsers}
 	refreshTokenRepositoryMock := refreshtoken_repository.RefreshTokenRepositoryMock{RefreshTokens: refreshTokens}
-	return NewAuthService(*tokenServiceMock, &passwordServiceMock, &userRepositoryMock, &refreshTokenRepositoryMock)
+	return NewAuthService(tokenServiceMock, &passwordServiceMock, &userRepositoryMock, &refreshTokenRepositoryMock)
 }
 
 // MARK: - SignUp
@@ -361,7 +361,7 @@ func TestRefreshExpiredToken(t *testing.T) {
 	passwordServiceMock := password.PasswordServiceMock{}
 	userRepositoryMock := repository.UserRepositoryMock{Users: make(map[string]*repository.User)}
 	refreshTokenRepositoryMock := refreshtoken_repository.RefreshTokenRepositoryMock{RefreshTokens: expiredTokens}
-	authService := NewAuthService(*tokenServiceMock, &passwordServiceMock, &userRepositoryMock, &refreshTokenRepositoryMock)
+	authService := NewAuthService(tokenServiceMock, &passwordServiceMock, &userRepositoryMock, &refreshTokenRepositoryMock)
 
 	_, err := authService.Refresh("expired_token")
 	if err == nil {
@@ -393,7 +393,7 @@ func TestLogoutInvalidatesRefreshToken(t *testing.T) {
 		},
 	}
 	tokenServiceMock := tokens.NewTokenService([]byte("test_key"))
-	authService := NewAuthService(*tokenServiceMock, &password.PasswordServiceMock{}, &repository.UserRepositoryMock{Users: make(map[string]*repository.User)}, refreshTokensMock)
+	authService := NewAuthService(tokenServiceMock, &password.PasswordServiceMock{}, &repository.UserRepositoryMock{Users: make(map[string]*repository.User)}, refreshTokensMock)
 
 	err := authService.Logout("id1")
 	if err != nil {

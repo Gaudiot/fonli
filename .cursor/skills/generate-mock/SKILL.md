@@ -48,8 +48,20 @@ When `<Method>Func` is nil, return the zero value for each return type:
 | `string` | `""` |
 | `bool` | `false` |
 | Pointer, slice, map, interface, func, chan | `nil` |
-| `error` | `nil` |
+| `error` | **see below** |
 | Named struct (value type) | `StructName{}` |
+
+### Error Return Behavior
+
+If any return type is `error`, the default (when `Func` is nil) must return `errors.New("[Mock] not implemented")` for that error value. All other return values stay at their zero value.
+
+This makes forgotten mock setups immediately visible — instead of silently returning `nil` and letting tests pass incorrectly, the mock loudly fails with a clear message.
+
+| Signature | Default return |
+|---|---|
+| `Delete(id string) error` | `errors.New("[Mock] not implemented")` |
+| `GetByID(id string) (*Item, error)` | `nil, errors.New("[Mock] not implemented")` |
+| `Count() int` | `0` (no error in signature — unchanged) |
 
 ## Template
 
@@ -70,6 +82,8 @@ Generate this mock:
 ```go
 package mypackage
 
+import "errors"
+
 type MyServiceMock struct {
     GetByIDFunc    func(id string) (*Item, error)
     GetByIDCallCount int
@@ -86,7 +100,7 @@ func (m *MyServiceMock) GetByID(id string) (*Item, error) {
     if m.GetByIDFunc != nil {
         return m.GetByIDFunc(id)
     }
-    return nil, nil
+    return nil, errors.New("[Mock] not implemented")
 }
 
 func (m *MyServiceMock) Delete(id string) error {
@@ -94,7 +108,7 @@ func (m *MyServiceMock) Delete(id string) error {
     if m.DeleteFunc != nil {
         return m.DeleteFunc(id)
     }
-    return nil
+    return errors.New("[Mock] not implemented")
 }
 
 func (m *MyServiceMock) Count() int {

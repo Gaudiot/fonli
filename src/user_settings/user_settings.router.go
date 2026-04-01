@@ -34,7 +34,7 @@ func writeError(w http.ResponseWriter, status int, message string) {
 
 // MARK: - Router
 
-func UserSettingsRouter(us *UserSettingsService, ts *tokens.TokenService) func(chi.Router) {
+func UserSettingsRouter(us *UserSettingsService, ts tokens.TokenService) func(chi.Router) {
 	return func(router chi.Router) {
 		router.Use(middlewares.AuthMiddleware(ts))
 		router.Get("/lifestyle", handleGetLifestyle(us))
