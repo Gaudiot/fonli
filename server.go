@@ -11,6 +11,7 @@ import (
 	"gaudiot.com/fonli/core/security/password"
 	"gaudiot.com/fonli/core/security/tokens"
 	"gaudiot.com/fonli/src/authentication"
+	"gaudiot.com/fonli/src/exercises"
 	storytranslation "gaudiot.com/fonli/src/story_translation"
 	"gaudiot.com/fonli/src/user_settings"
 	wordconjugationexercise "gaudiot.com/fonli/src/word_conjugation"
@@ -44,9 +45,7 @@ func main() {
 	wordConjugation := wordconjugationexercise.NewWordConjugation(aiService)
 	storyTranslation := storytranslation.NewStoryTranslation(aiService)
 
-	router.Route("/word-translation", wordtranslationexercise.WordTranslationRouter(wordTranslation, tokenService))
-	router.Route("/word-conjugation", wordconjugationexercise.WordConjugationRouter(wordConjugation, tokenService))
-	router.Route("/history-translation", storytranslation.StoryTranslationRouter(storyTranslation, tokenService))
+	router.Route("/exercises", exercises.ExercisesRouter(wordConjugation, wordTranslation, storyTranslation, tokenService))
 
 	log.Printf("Server is running on port :%s", envConfig.Port)
 	http.ListenAndServe(":"+envConfig.Port, router)
