@@ -18,3 +18,6 @@ migrate-up:
 
 migrate-down:
 	goose -dir ./core/database/migrations postgres "$(DATABASE_URL)" down
+
+migrate-nuke:
+	goose -dir ./core/database/migrations postgres "$(DATABASE_URL)" down-to 0

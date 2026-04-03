@@ -3,6 +3,7 @@ package authentication
 import (
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -91,6 +92,9 @@ func handleSignUp(as *AuthService) http.HandlerFunc {
 		tokens, err := as.SignUp(req.Username, req.Email, req.Password)
 		if err != nil {
 			status, message := mapSignUpError(err)
+			if status == http.StatusInternalServerError {
+				slog.Error("signup failed", "error", err)
+			}
 			writeError(w, status, message)
 			return
 		}
@@ -116,6 +120,7 @@ func handleLogin(as *AuthService) http.HandlerFunc {
 				writeError(w, http.StatusUnauthorized, err.Error())
 				return
 			}
+			slog.Error("login failed", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
@@ -141,6 +146,7 @@ func handleRefresh(as *AuthService) http.HandlerFunc {
 				writeError(w, http.StatusUnauthorized, err.Error())
 				return
 			}
+			slog.Error("refresh failed", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
@@ -168,6 +174,7 @@ func handleLogout(as *AuthService) http.HandlerFunc {
 		}
 
 		if err := as.Logout(claims.UserID); err != nil {
+			slog.Error("logout failed", "error", err, "userID", claims.UserID)
 			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}

@@ -9,6 +9,7 @@ import (
 	refreshtoken_repo "gaudiot.com/fonli/base/repositories/refresh_token"
 	user_repo "gaudiot.com/fonli/base/repositories/user"
 	"gaudiot.com/fonli/core"
+	"gaudiot.com/fonli/core/database"
 	"gaudiot.com/fonli/core/middlewares"
 	"gaudiot.com/fonli/core/security/password"
 	"gaudiot.com/fonli/core/security/tokens"
@@ -39,15 +40,19 @@ func main() {
 	}
 
 	envConfig := core.GetEnvConfig()
+	db, err := database.Connect(envConfig.DatabaseURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
-	// TODO: replace mocks with real repository implementations
 	tokenService := tokens.NewTokenService([]byte(envConfig.JWTSecret))
 	passwordService := &password.BCryptPasswordService{}
-	userRepository := &user_repo.UserRepositoryMock{Users: make(map[string]*user_repo.User)}
 	aiService := &aiservice.OpenAIAIService{}
-	userSettingsService := user_settings.NewUserSettingsService(userRepository, aiService)
-	refreshTokenRepository := &refreshtoken_repo.RefreshTokenRepositoryMock{RefreshTokens: make(map[string]*refreshtoken_repo.RefreshToken)}
-	authService := authentication.NewAuthService(tokenService, passwordService, userRepository, refreshTokenRepository)
+	var userRepository user_repo.UserRepository = user_repo.NewPgxUserRepository(db)
+	var refreshTokenRepository refreshtoken_repo.RefreshTokenRepository = refreshtoken_repo.NewPgxRefreshTokenRepository(db)
+	var userSettingsService *user_settings.UserSettingsService = user_settings.NewUserSettingsService(userRepository, aiService)
+	var authService *authentication.AuthService = authentication.NewAuthService(tokenService, passwordService, userRepository, refreshTokenRepository)
 
 	wordTranslation := wordtranslationexercise.NewWordTranslation(aiService)
 	wordConjugation := wordconjugationexercise.NewWordConjugation(aiService)

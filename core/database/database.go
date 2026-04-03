@@ -21,7 +21,7 @@ func Connect(databaseURL string) (*DB, error) {
 }
 
 func (db *DB) Close() {
-	if db.Pool == nil {
+	if db.Pool != nil {
 		db.Pool.Close()
 	}
 }

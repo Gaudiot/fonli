@@ -55,6 +55,7 @@ func newTestAuthServiceWithUsers() *AuthService {
 			Token:     "refresh_token",
 			UserID:    "id1",
 			ExpiresAt: time.Now().Add(refreshTokenLifetime),
+			IsValid:   true,
 		},
 	}
 	tokenServiceMock := tokens.NewTokenService([]byte("test_key"))
@@ -400,6 +401,7 @@ func TestLogoutInvalidatesRefreshToken(t *testing.T) {
 				Token:     "refresh_token",
 				UserID:    "id1",
 				ExpiresAt: time.Now().Add(refreshTokenLifetime),
+				IsValid:   true,
 			},
 		},
 	}
