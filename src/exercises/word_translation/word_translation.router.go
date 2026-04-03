@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"gaudiot.com/fonli/base"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -40,6 +41,11 @@ func handleNativeToForeignExercise(wt *WordTranslation) http.HandlerFunc {
 		nl := r.URL.Query().Get("nl")
 		fl := r.URL.Query().Get("fl")
 
+		if base.LanguageFromCountryCode(nl) == "" || base.LanguageFromCountryCode(fl) == "" {
+			writeError(w, http.StatusBadRequest, "invalid language code for 'nl' or 'fl'")
+			return
+		}
+
 		exercises, err := wt.NativeToForeignExercise(10, nl, fl)
 		if err != nil {
 			slog.Error("failed to generate native-to-foreign exercise", "error", err)
@@ -55,6 +61,11 @@ func handleForeignToNativeExercise(wt *WordTranslation) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		nl := r.URL.Query().Get("nl")
 		fl := r.URL.Query().Get("fl")
+
+		if base.LanguageFromCountryCode(nl) == "" || base.LanguageFromCountryCode(fl) == "" {
+			writeError(w, http.StatusBadRequest, "invalid language code for 'nl' or 'fl'")
+			return
+		}
 
 		exercises, err := wt.ForeignToNativeExercise(10, fl, nl)
 		if err != nil {

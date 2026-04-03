@@ -39,6 +39,17 @@ func handleGenerateExercise(wc *WordConjugation) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		foreignLanguageCode := r.URL.Query().Get("fl")
 		rawTense := r.URL.Query().Get("tense")
+
+		if base.LanguageFromCountryCode(foreignLanguageCode) == "" {
+			writeError(w, http.StatusBadRequest, "invalid language code for 'fl'")
+			return
+		}
+
+		if rawTense == "" {
+			writeError(w, http.StatusBadRequest, "'tense' query parameter is required")
+			return
+		}
+
 		tense := base.GetTense(rawTense)
 
 		exercises, err := wc.GenerateExercise(tense, foreignLanguageCode)

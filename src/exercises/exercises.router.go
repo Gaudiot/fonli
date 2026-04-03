@@ -5,9 +5,9 @@ import (
 
 	"gaudiot.com/fonli/core/middlewares"
 	"gaudiot.com/fonli/core/security/tokens"
-	storytranslation "gaudiot.com/fonli/src/story_translation"
-	wordconjugationexercise "gaudiot.com/fonli/src/word_conjugation"
-	wordtranslationexercise "gaudiot.com/fonli/src/word_translation"
+	storytranslation "gaudiot.com/fonli/src/exercises/story_translation"
+	wordconjugationexercise "gaudiot.com/fonli/src/exercises/word_conjugation"
+	wordtranslationexercise "gaudiot.com/fonli/src/exercises/word_translation"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -32,8 +32,8 @@ func ExercisesRouter(
 // Optional: root handler just to confirm this router is alive
 func handleRoot() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"ok":true,"message":"Fonli Exercises API"}`))
 	}
 }

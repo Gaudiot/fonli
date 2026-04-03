@@ -17,6 +17,11 @@ func Connect(databaseURL string) (*DB, error) {
 		return nil, err
 	}
 
+	err = pool.Ping(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	return &DB{Pool: pool}, nil
 }
 

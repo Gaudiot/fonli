@@ -81,6 +81,11 @@ func handleUpdateLifestyle(us *UserSettingsService) http.HandlerFunc {
 			return
 		}
 
+		if len([]rune(req.Text)) > 500 {
+			writeError(w, http.StatusBadRequest, "text exceeds maximum length of 500 characters")
+			return
+		}
+
 		err := us.UpdateUserLifestyle(userID, req.Text)
 		if err != nil {
 			slog.Error("failed to update user lifestyle", "error", err)

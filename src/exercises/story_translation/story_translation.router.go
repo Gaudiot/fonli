@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"gaudiot.com/fonli/base"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -47,6 +48,11 @@ func handleGenerateStory(st *StoryTranslation) http.HandlerFunc {
 		nativeLanguageCode := r.URL.Query().Get("nl")
 		foreignLanguageCode := r.URL.Query().Get("fl")
 
+		if base.LanguageFromCountryCode(nativeLanguageCode) == "" || base.LanguageFromCountryCode(foreignLanguageCode) == "" {
+			writeError(w, http.StatusBadRequest, "invalid language code for 'nl' or 'fl'")
+			return
+		}
+
 		story, err := st.GenerateStory(nativeLanguageCode, foreignLanguageCode)
 		if err != nil {
 			slog.Error("failed to generate story", "error", err)
@@ -58,15 +64,31 @@ func handleGenerateStory(st *StoryTranslation) http.HandlerFunc {
 	}
 }
 
+const maxStoryLength = 5000
+
 func handleEvaluateTranslation(st *StoryTranslation) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		nativeLanguageCode := r.URL.Query().Get("nl")
 		foreignLanguageCode := r.URL.Query().Get("fl")
 
+		if base.LanguageFromCountryCode(nativeLanguageCode) == "" || base.LanguageFromCountryCode(foreignLanguageCode) == "" {
+			writeError(w, http.StatusBadRequest, "invalid language code for 'nl' or 'fl'")
+			return
+		}
+
 		var req evaluateTranslationRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			slog.Warn("invalid request body", "error", err)
 			writeError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+
+		if len([]rune(req.Story)) > maxStoryLength {
+			writeError(w, http.StatusBadRequest, "story exceeds maximum length of 5000 characters")
+			return
+		}
+		if len([]rune(req.UserTranslation)) > maxStoryLength {
+			writeError(w, http.StatusBadRequest, "userTranslation exceeds maximum length of 5000 characters")
 			return
 		}
 

@@ -6,7 +6,7 @@ import (
 
 	"gaudiot.com/fonli/base"
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
-	wordtranslationexercise "gaudiot.com/fonli/src/word_translation"
+	wordtranslationexercise "gaudiot.com/fonli/src/exercises/word_translation"
 )
 
 type Conjugation struct {
