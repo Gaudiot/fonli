@@ -165,6 +165,14 @@ func (as *AuthService) Refresh(refreshToken string) (*AuthTokens, error) {
 		return nil, ErrInvalidRefreshToken
 	}
 
+	if !token.IsValid {
+		return nil, ErrInvalidRefreshToken
+	}
+
+	if token.ExpiresAt.Before(time.Now()) {
+		return nil, ErrExpiredRefreshToken
+	}
+
 	tks, err := as.generateAuthTokens(token.UserID)
 	if err != nil {
 		return nil, err

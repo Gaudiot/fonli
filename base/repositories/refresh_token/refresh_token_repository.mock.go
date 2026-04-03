@@ -11,6 +11,7 @@ func (r *RefreshTokenRepositoryMock) CreateRefreshToken(token, userID string, ex
 		Token:     token,
 		UserID:    userID,
 		ExpiresAt: expiresAt,
+		IsValid:   true,
 	}
 	r.RefreshTokens[token] = refreshToken
 

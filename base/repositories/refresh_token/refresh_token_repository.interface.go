@@ -9,6 +9,7 @@ type RefreshToken struct {
 	Token     string
 	UserID    string
 	ExpiresAt time.Time
+	IsValid   bool
 }
 
 var (
