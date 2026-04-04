@@ -9,6 +9,7 @@ import (
 	refreshtoken_repo "gaudiot.com/fonli/base/repositories/refresh_token"
 	user_repo "gaudiot.com/fonli/base/repositories/user"
 	"gaudiot.com/fonli/core"
+	"gaudiot.com/fonli/core/analytics"
 	"gaudiot.com/fonli/core/database"
 	"gaudiot.com/fonli/core/middlewares"
 	"gaudiot.com/fonli/core/security/password"
@@ -45,6 +46,12 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	err = analytics.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer analytics.Close()
 
 	tokenService := tokens.NewTokenService([]byte(envConfig.JWTSecret))
 	passwordService := &password.BCryptPasswordService{}

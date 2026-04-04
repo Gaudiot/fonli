@@ -9,10 +9,11 @@ import (
 )
 
 type EnvConfig struct {
-	Port        string
-	OpenAIKey   string
-	JWTSecret   string
-	DatabaseURL string
+	Port          string
+	OpenAIKey     string
+	JWTSecret     string
+	DatabaseURL   string
+	PostHogAPIKey string
 	// DB    PostgresConfig
 	// Port  string
 }
@@ -62,11 +63,17 @@ func LoadEnvConfig() error {
 		return err
 	}
 
+	postHogAPIKey, err := getEnvValue("POSTHOG_API_KEY")
+	if err != nil {
+		return err
+	}
+
 	config := &EnvConfig{
-		Port:        port,
-		OpenAIKey:   openAIKey,
-		JWTSecret:   jwtSecret,
-		DatabaseURL: databaseURL,
+		Port:          port,
+		OpenAIKey:     openAIKey,
+		JWTSecret:     jwtSecret,
+		DatabaseURL:   databaseURL,
+		PostHogAPIKey: postHogAPIKey,
 	}
 
 	envConfigData = config
