@@ -12,6 +12,14 @@ import (
 
 // MARK: - Payloads
 
+type getLifestyleResponse struct {
+	UserLifestyle string `json:"lifestyle"`
+}
+
+type updateLifestyleResponse struct {
+	UserLifestyle string `json:"lifestyle"`
+}
+
 type updateLifestyleRequest struct {
 	Text string `json:"text"`
 }
@@ -60,7 +68,10 @@ func handleGetLifestyle(us *UserSettingsService) http.HandlerFunc {
 			writeError(w, http.StatusInternalServerError, "internal server error")
 			return
 		}
-		writeJSON(w, http.StatusOK, lifestyle)
+		userLifestyleResponse := getLifestyleResponse{
+			UserLifestyle: lifestyle,
+		}
+		writeJSON(w, http.StatusOK, userLifestyleResponse)
 	}
 }
 
@@ -93,6 +104,10 @@ func handleUpdateLifestyle(us *UserSettingsService) http.HandlerFunc {
 			return
 		}
 		slog.Info("lifestyle updated", "userID", userID)
-		writeJSON(w, http.StatusOK, "lifestyle updated successfully")
+
+		userLifestyleResponse := updateLifestyleResponse{
+			UserLifestyle: req.Text,
+		}
+		writeJSON(w, http.StatusOK, userLifestyleResponse)
 	}
 }

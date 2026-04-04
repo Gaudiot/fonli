@@ -32,7 +32,8 @@ func (us *UserSettingsService) GetUserLifestyle(userID string) (string, error) {
 	if user == nil {
 		return "", ErrUserNotFound
 	}
-	return user.LifestyleTopics, nil
+
+	return user.Lifestyle, nil
 }
 
 func (us *UserSettingsService) UpdateUserLifestyle(userID, text string) error {
@@ -55,7 +56,10 @@ func (us *UserSettingsService) UpdateUserLifestyle(userID, text string) error {
 		return err
 	}
 
-	us.userRepository.UpdateUserLifestyle(userID, text, response)
+	err = us.userRepository.UpdateUserLifestyle(userID, text, response)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

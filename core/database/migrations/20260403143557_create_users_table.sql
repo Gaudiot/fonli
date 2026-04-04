@@ -7,7 +7,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     username VARCHAR(255) NOT NULL,
     canonical_username VARCHAR(255) NOT NULL UNIQUE,
-    lifestyle VARCHAR(255) NOT NULL DEFAULT '',
+    lifestyle TEXT NOT NULL DEFAULT '',
     lifestyle_topics TEXT NOT NULL DEFAULT '',
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
