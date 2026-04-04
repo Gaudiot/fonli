@@ -58,6 +58,11 @@ func NewAuthService(tokenService tokens.TokenService, passwordService password.P
 }
 
 func (as *AuthService) generateAuthTokens(userID string) (*AuthTokens, error) {
+	err := as.refreshTokenRepository.InvalidateUserRefreshTokens(userID)
+	if err != nil {
+		return nil, err
+	}
+
 	accessToken, err := as.tokenService.GenerateAccessToken(userID)
 	if err != nil {
 		return nil, err
@@ -178,16 +183,12 @@ func (as *AuthService) Refresh(refreshToken string) (*AuthTokens, error) {
 		return nil, err
 	}
 
-	if err := as.refreshTokenRepository.DeleteByToken(refreshToken); err != nil {
-		return nil, err
-	}
-
 	return tks, nil
 }
 
 // MARK: - Logout
 func (as *AuthService) Logout(userID string) error {
-	if err := as.refreshTokenRepository.DeleteAllByUserID(userID); err != nil {
+	if err := as.refreshTokenRepository.InvalidateUserRefreshTokens(userID); err != nil {
 		return err
 	}
 

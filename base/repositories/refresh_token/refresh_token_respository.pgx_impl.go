@@ -58,6 +58,17 @@ func (r *pgxRefreshTokenRepository) GetByToken(token string) (*RefreshToken, err
 	return &rt, nil
 }
 
+func (r *pgxRefreshTokenRepository) InvalidateUserRefreshTokens(userID string) error {
+	ctx := context.Background()
+	query := `
+		UPDATE refresh_tokens
+		SET is_valid = FALSE
+		WHERE user_id = $1
+	`
+	_, err := r.db.Pool.Exec(ctx, query, userID)
+	return err
+}
+
 func (r *pgxRefreshTokenRepository) DeleteByToken(token string) error {
 	ctx := context.Background()
 	query := `

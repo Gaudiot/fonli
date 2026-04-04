@@ -20,6 +20,7 @@ var (
 type RefreshTokenRepository interface {
 	CreateRefreshToken(token, userID string, expiresAt time.Time) (*RefreshToken, error)
 	GetByToken(token string) (*RefreshToken, error)
+	InvalidateUserRefreshTokens(userID string) error
 	DeleteByToken(token string) error
 	DeleteAllByUserID(userID string) error
 }

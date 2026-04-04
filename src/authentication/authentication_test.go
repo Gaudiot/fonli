@@ -29,8 +29,8 @@ func newTestAuthServiceEmptyUsers() *AuthService {
 	emptyUsers := make(map[string]*repository.User)
 	tokenServiceMock := tokens.NewTokenService([]byte("test_key"))
 	userRepositoryMock := repository.UserRepositoryMock{Users: emptyUsers}
-	refreshTokenRepositoryMock := refreshtoken_repository.RefreshTokenRepositoryMock{RefreshTokens: make(map[string]*refreshtoken_repository.RefreshToken)}
-	return NewAuthService(tokenServiceMock, newPasswordServiceMock(), &userRepositoryMock, &refreshTokenRepositoryMock)
+	refreshTokenRepositoryMock := refreshtoken_repository.NewInMemoryRefreshTokenRepositoryMock(make(map[string]*refreshtoken_repository.RefreshToken))
+	return NewAuthService(tokenServiceMock, newPasswordServiceMock(), &userRepositoryMock, refreshTokenRepositoryMock)
 }
 
 func newTestAuthServiceWithUsers() *AuthService {
@@ -60,8 +60,8 @@ func newTestAuthServiceWithUsers() *AuthService {
 	}
 	tokenServiceMock := tokens.NewTokenService([]byte("test_key"))
 	userRepositoryMock := repository.UserRepositoryMock{Users: validUsers}
-	refreshTokenRepositoryMock := refreshtoken_repository.RefreshTokenRepositoryMock{RefreshTokens: refreshTokens}
-	return NewAuthService(tokenServiceMock, newPasswordServiceMock(), &userRepositoryMock, &refreshTokenRepositoryMock)
+	refreshTokenRepositoryMock := refreshtoken_repository.NewInMemoryRefreshTokenRepositoryMock(refreshTokens)
+	return NewAuthService(tokenServiceMock, newPasswordServiceMock(), &userRepositoryMock, refreshTokenRepositoryMock)
 }
 
 // MARK: - SignUp
@@ -372,8 +372,8 @@ func TestRefreshExpiredToken(t *testing.T) {
 	}
 	tokenServiceMock := tokens.NewTokenService([]byte("test_key"))
 	userRepositoryMock := repository.UserRepositoryMock{Users: make(map[string]*repository.User)}
-	refreshTokenRepositoryMock := refreshtoken_repository.RefreshTokenRepositoryMock{RefreshTokens: expiredTokens}
-	authService := NewAuthService(tokenServiceMock, newPasswordServiceMock(), &userRepositoryMock, &refreshTokenRepositoryMock)
+	refreshTokenRepositoryMock := refreshtoken_repository.NewInMemoryRefreshTokenRepositoryMock(expiredTokens)
+	authService := NewAuthService(tokenServiceMock, newPasswordServiceMock(), &userRepositoryMock, refreshTokenRepositoryMock)
 
 	_, err := authService.Refresh("expired_token")
 	if err == nil {
@@ -395,16 +395,15 @@ func TestLogoutSuccess(t *testing.T) {
 }
 
 func TestLogoutInvalidatesRefreshToken(t *testing.T) {
-	refreshTokensMock := &refreshtoken_repository.RefreshTokenRepositoryMock{
-		RefreshTokens: map[string]*refreshtoken_repository.RefreshToken{
-			"refresh_token": {
-				Token:     "refresh_token",
-				UserID:    "id1",
-				ExpiresAt: time.Now().Add(refreshTokenLifetime),
-				IsValid:   true,
-			},
+	refreshStore := map[string]*refreshtoken_repository.RefreshToken{
+		"refresh_token": {
+			Token:     "refresh_token",
+			UserID:    "id1",
+			ExpiresAt: time.Now().Add(refreshTokenLifetime),
+			IsValid:   true,
 		},
 	}
+	refreshTokensMock := refreshtoken_repository.NewInMemoryRefreshTokenRepositoryMock(refreshStore)
 	tokenServiceMock := tokens.NewTokenService([]byte("test_key"))
 	authService := NewAuthService(tokenServiceMock, newPasswordServiceMock(), &repository.UserRepositoryMock{Users: make(map[string]*repository.User)}, refreshTokensMock)
 
@@ -413,7 +412,11 @@ func TestLogoutInvalidatesRefreshToken(t *testing.T) {
 		t.Fatalf("Logout(); Unexpected error: %v", err)
 	}
 
-	if len(refreshTokensMock.RefreshTokens) != 0 {
-		t.Errorf("Logout(); Wanted 0 refresh tokens after logout, got %d", len(refreshTokensMock.RefreshTokens))
+	rt, ok := refreshStore["refresh_token"]
+	if !ok {
+		t.Fatal("Logout(); Wanted refresh token entry to remain in store after invalidation")
+	}
+	if rt.IsValid {
+		t.Errorf("Logout(); Wanted refresh token invalidated (IsValid false), got IsValid true")
 	}
 }
