@@ -59,8 +59,8 @@ func (h *StoryTranslation) GenerateStory(nativeLanguageCode, foreignLanguageCode
 
 	schema := generateSchema[GenerateStoryResponse]()
 	prompt := fmt.Sprintf(
-		`Create a story in %s, of medium length, to be translated into %s by a student learning it.
-		The story should be interesting, appropriate for students (not too easy, not too hard), and contain between 3 to 4 paragraphs.
+		`Create a short story (around 50 words) in %s, to be translated into %s by a student learning it.
+		The story should be interesting, appropriate for students (not too easy, not too hard).
 		There are some lifestyle topics that the user likes to use in his daily life, these are: %s.
 		You may weave themes related to these topics into the story when natural.
 		The result should be only a JSON object that contains the field "story".`,
