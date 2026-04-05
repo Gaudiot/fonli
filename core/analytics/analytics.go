@@ -5,6 +5,7 @@ var (
 )
 
 type AnalyticsService interface {
+	Register(eventID string, properties map[string]interface{}) error
 	Close() error
 }
 
