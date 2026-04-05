@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"gaudiot.com/fonli/base"
+	"gaudiot.com/fonli/core/middlewares"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -53,7 +54,13 @@ func handleGenerateStory(st *StoryTranslation) http.HandlerFunc {
 			return
 		}
 
-		story, err := st.GenerateStory(nativeLanguageCode, foreignLanguageCode)
+		userID, ok := middlewares.UserIDFromContext(r.Context())
+		if !ok || userID == "" {
+			writeError(w, http.StatusUnauthorized, "missing user id")
+			return
+		}
+
+		story, err := st.GenerateStory(nativeLanguageCode, foreignLanguageCode, userID)
 		if err != nil {
 			slog.Error("failed to generate story", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"gaudiot.com/fonli/base"
+	"gaudiot.com/fonli/core/middlewares"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -52,7 +53,13 @@ func handleGenerateExercise(wc *WordConjugation) http.HandlerFunc {
 
 		tense := base.GetTense(rawTense)
 
-		exercises, err := wc.GenerateExercise(tense, foreignLanguageCode)
+		userID, ok := middlewares.UserIDFromContext(r.Context())
+		if !ok || userID == "" {
+			writeError(w, http.StatusUnauthorized, "missing user id")
+			return
+		}
+
+		exercises, err := wc.GenerateExercise(tense, foreignLanguageCode, userID)
 		if err != nil {
 			slog.Error("failed to generate conjugation exercise", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")

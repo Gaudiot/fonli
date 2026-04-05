@@ -6,6 +6,7 @@ import (
 
 	"gaudiot.com/fonli/base"
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
+	user_repository "gaudiot.com/fonli/base/repositories/user"
 	wordtranslationexercise "gaudiot.com/fonli/src/exercises/word_translation"
 )
 
@@ -22,16 +23,24 @@ type WordConjugationExercise struct {
 }
 
 type WordConjugation struct {
-	aiService aiservice.AIService
+	aiService      aiservice.AIService
+	userRepository user_repository.UserRepository
 }
 
-func NewWordConjugation(aiService aiservice.AIService) *WordConjugation {
+func NewWordConjugation(aiService aiservice.AIService, userRepository user_repository.UserRepository) *WordConjugation {
 	return &WordConjugation{
-		aiService: aiService,
+		aiService:      aiService,
+		userRepository: userRepository,
 	}
 }
 
-func (w *WordConjugation) GenerateExercise(tense base.Tense, foreignLanguageCode string) (*WordConjugationExercise, error) {
+func (w *WordConjugation) GenerateExercise(tense base.Tense, foreignLanguageCode, userID string) (*WordConjugationExercise, error) {
+	user, err := w.userRepository.GetUserByID(userID)
+	if err != nil {
+		return nil, err
+	}
+	userLifestyleTopics := user.LifestyleTopics
+
 	foreignLanguage := base.LanguageFromCountryCode(foreignLanguageCode)
 	exerciseSchema := wordtranslationexercise.GenerateSchema[WordConjugationExercise]()
 
@@ -39,6 +48,8 @@ func (w *WordConjugation) GenerateExercise(tense base.Tense, foreignLanguageCode
 		`Create an exercise for the user to conjugate a verb used in daily life in %s.
 		The tense must be %s. And the tense should be returned in %s.
 		If the tense is not valid for the verb choose the most similar tense.
+		There are some lifestyle topics that the user likes to use in his daily life, these are: %s.
+		Prefer verbs and contexts that relate to these topics when relevant.
 		Other acceptable verbs are the ones that are used in common scenarios such as: 
 		- Going on vacation
 		- Summer Olympics
@@ -49,6 +60,7 @@ func (w *WordConjugation) GenerateExercise(tense base.Tense, foreignLanguageCode
 		foreignLanguage,
 		tense,
 		foreignLanguage,
+		userLifestyleTopics,
 	)
 
 	response, err := w.aiService.PromptWithStructuredResponse(prompt, exerciseSchema)

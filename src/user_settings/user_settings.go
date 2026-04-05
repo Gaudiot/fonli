@@ -46,6 +46,8 @@ func (us *UserSettingsService) UpdateUserLifestyle(userID, text string) error {
 		The lifestyle topics would be: "gym, soccer, nurse"
 
 		Return only the lifestyle points, no other text.
+		The lifestyle must be returned in english, not the language of the text.
+		If it is not possible to get the lifestyle topics, return an empty string.
 		The text is: %s
 		`,
 		text,

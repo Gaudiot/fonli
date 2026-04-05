@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"gaudiot.com/fonli/base"
+	"gaudiot.com/fonli/core/middlewares"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -46,7 +47,13 @@ func handleNativeToForeignExercise(wt *WordTranslation) http.HandlerFunc {
 			return
 		}
 
-		exercises, err := wt.NativeToForeignExercise(10, nl, fl)
+		userID, ok := middlewares.UserIDFromContext(r.Context())
+		if !ok || userID == "" {
+			writeError(w, http.StatusUnauthorized, "missing user id")
+			return
+		}
+
+		exercises, err := wt.NativeToForeignExercise(10, nl, fl, userID)
 		if err != nil {
 			slog.Error("failed to generate native-to-foreign exercise", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")
@@ -67,7 +74,13 @@ func handleForeignToNativeExercise(wt *WordTranslation) http.HandlerFunc {
 			return
 		}
 
-		exercises, err := wt.ForeignToNativeExercise(10, fl, nl)
+		userID, ok := middlewares.UserIDFromContext(r.Context())
+		if !ok || userID == "" {
+			writeError(w, http.StatusUnauthorized, "missing user id")
+			return
+		}
+
+		exercises, err := wt.ForeignToNativeExercise(10, fl, nl, userID)
 		if err != nil {
 			slog.Error("failed to generate foreign-to-native exercise", "error", err)
 			writeError(w, http.StatusInternalServerError, "internal server error")

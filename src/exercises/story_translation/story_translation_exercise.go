@@ -6,6 +6,7 @@ import (
 
 	"gaudiot.com/fonli/base"
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
+	user_repository "gaudiot.com/fonli/base/repositories/user"
 	"github.com/invopop/jsonschema"
 )
 
@@ -34,17 +35,25 @@ type EvaluateTranslationResponse struct {
 }
 
 type StoryTranslation struct {
-	aiService aiservice.AIService
+	aiService      aiservice.AIService
+	userRepository user_repository.UserRepository
 }
 
-func NewStoryTranslation(aiService aiservice.AIService) *StoryTranslation {
+func NewStoryTranslation(aiService aiservice.AIService, userRepository user_repository.UserRepository) *StoryTranslation {
 	return &StoryTranslation{
-		aiService: aiService,
+		aiService:      aiService,
+		userRepository: userRepository,
 	}
 }
 
 // GenerateStory generates a medium-sized story in Portuguese for the user to translate
-func (h *StoryTranslation) GenerateStory(nativeLanguageCode string, foreignLanguageCode string) (*GenerateStoryResponse, error) {
+func (h *StoryTranslation) GenerateStory(nativeLanguageCode, foreignLanguageCode, userID string) (*GenerateStoryResponse, error) {
+	user, err := h.userRepository.GetUserByID(userID)
+	if err != nil {
+		return nil, err
+	}
+	userLifestyleTopics := user.LifestyleTopics
+
 	nativeLanguage := base.LanguageFromCountryCode(nativeLanguageCode)
 	foreignLanguage := base.LanguageFromCountryCode(foreignLanguageCode)
 
@@ -52,9 +61,12 @@ func (h *StoryTranslation) GenerateStory(nativeLanguageCode string, foreignLangu
 	prompt := fmt.Sprintf(
 		`Create a story in %s, of medium length, to be translated into %s by a student learning it.
 		The story should be interesting, appropriate for students (not too easy, not too hard), and contain between 3 to 4 paragraphs.
+		There are some lifestyle topics that the user likes to use in his daily life, these are: %s.
+		You may weave themes related to these topics into the story when natural.
 		The result should be only a JSON object that contains the field "story".`,
 		nativeLanguage,
 		foreignLanguage,
+		userLifestyleTopics,
 	)
 
 	response, err := h.aiService.PromptWithStructuredResponse(prompt, schema)

@@ -5,11 +5,23 @@ import (
 	"testing"
 
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
+	user_repository "gaudiot.com/fonli/base/repositories/user"
 )
+
+func testStoryTranslationUserRepo() *user_repository.UserRepositoryMock {
+	const id = "test-user-id"
+	return &user_repository.UserRepositoryMock{
+		Users: map[string]*user_repository.User{
+			id: {ID: id, LifestyleTopics: "nature, history"},
+		},
+	}
+}
+
+const testStoryTranslationUserID = "test-user-id"
 
 func TestGenerateStory(t *testing.T) {
 	mockAI := &aiservice.AIServiceMock{}
-	st := NewStoryTranslation(mockAI)
+	st := NewStoryTranslation(mockAI, testStoryTranslationUserRepo())
 
 	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
@@ -17,7 +29,7 @@ func TestGenerateStory(t *testing.T) {
 		}`, nil
 	}
 
-	got, err := st.GenerateStory("pt", "it")
+	got, err := st.GenerateStory("pt", "it", testStoryTranslationUserID)
 	if err != nil {
 		t.Errorf("GenerateStory() should not return an error, but got %v", err)
 	}
@@ -30,13 +42,13 @@ func TestGenerateStory(t *testing.T) {
 
 func TestGenerateStory_WithError(t *testing.T) {
 	mockAI := &aiservice.AIServiceMock{}
-	st := NewStoryTranslation(mockAI)
+	st := NewStoryTranslation(mockAI, testStoryTranslationUserRepo())
 
 	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return "", errors.New("AI service failed")
 	}
 
-	got, err := st.GenerateStory("pt", "it")
+	got, err := st.GenerateStory("pt", "it", testStoryTranslationUserID)
 	if err == nil {
 		t.Errorf("GenerateStory() should return an error when AI service fails, but got nil")
 	}
@@ -47,7 +59,7 @@ func TestGenerateStory_WithError(t *testing.T) {
 
 func TestEvaluateTranslation(t *testing.T) {
 	mockAI := &aiservice.AIServiceMock{}
-	st := NewStoryTranslation(mockAI)
+	st := NewStoryTranslation(mockAI, testStoryTranslationUserRepo())
 
 	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
@@ -80,7 +92,7 @@ func TestEvaluateTranslation(t *testing.T) {
 
 func TestEvaluateTranslation_WithManyErrors_EnforcesScoreLimit(t *testing.T) {
 	mockAI := &aiservice.AIServiceMock{}
-	st := NewStoryTranslation(mockAI)
+	st := NewStoryTranslation(mockAI, testStoryTranslationUserRepo())
 
 	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
@@ -104,7 +116,7 @@ func TestEvaluateTranslation_WithManyErrors_EnforcesScoreLimit(t *testing.T) {
 
 func TestEvaluateTranslation_WithError(t *testing.T) {
 	mockAI := &aiservice.AIServiceMock{}
-	st := NewStoryTranslation(mockAI)
+	st := NewStoryTranslation(mockAI, testStoryTranslationUserRepo())
 
 	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return "", errors.New("AI service failed")

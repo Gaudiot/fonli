@@ -61,9 +61,9 @@ func main() {
 	var userSettingsService *user_settings.UserSettingsService = user_settings.NewUserSettingsService(userRepository, aiService)
 	var authService *authentication.AuthService = authentication.NewAuthService(tokenService, passwordService, userRepository, refreshTokenRepository)
 
-	wordTranslation := wordtranslationexercise.NewWordTranslation(aiService)
-	wordConjugation := wordconjugationexercise.NewWordConjugation(aiService)
-	storyTranslation := storytranslation.NewStoryTranslation(aiService)
+	wordTranslation := wordtranslationexercise.NewWordTranslation(aiService, userRepository)
+	wordConjugation := wordconjugationexercise.NewWordConjugation(aiService, userRepository)
+	storyTranslation := storytranslation.NewStoryTranslation(aiService, userRepository)
 
 	router := chi.NewRouter()
 	router.Use(middlewares.MaxBytesMiddleware(maxBytes))

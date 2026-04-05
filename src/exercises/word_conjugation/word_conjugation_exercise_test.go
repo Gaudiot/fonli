@@ -5,11 +5,23 @@ import (
 
 	"gaudiot.com/fonli/base"
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
+	user_repository "gaudiot.com/fonli/base/repositories/user"
 )
+
+func testWordConjugationUserRepo() *user_repository.UserRepositoryMock {
+	const id = "test-user-id"
+	return &user_repository.UserRepositoryMock{
+		Users: map[string]*user_repository.User{
+			id: {ID: id, LifestyleTopics: "sports, cooking"},
+		},
+	}
+}
+
+const testWordConjugationUserID = "test-user-id"
 
 func TestWordConjugationExercise(t *testing.T) {
 	mockAI := &aiservice.AIServiceMock{}
-	wc := NewWordConjugation(mockAI)
+	wc := NewWordConjugation(mockAI, testWordConjugationUserRepo())
 
 	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
@@ -50,7 +62,7 @@ func TestWordConjugationExercise(t *testing.T) {
 		}`, nil
 	}
 
-	got, err := wc.GenerateExercise(base.PresentSimple, "it")
+	got, err := wc.GenerateExercise(base.PresentSimple, "it", testWordConjugationUserID)
 
 	if err != nil {
 		t.Errorf("GenerateExercise() should not return an error, but got %v", err)

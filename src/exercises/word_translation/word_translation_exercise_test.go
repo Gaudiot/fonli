@@ -5,11 +5,26 @@ import (
 	"testing"
 
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
+	user_repository "gaudiot.com/fonli/base/repositories/user"
 )
+
+func testWordTranslationUserRepo() *user_repository.UserRepositoryMock {
+	const testUserID = "test-user-id"
+	return &user_repository.UserRepositoryMock{
+		Users: map[string]*user_repository.User{
+			testUserID: {
+				ID:              testUserID,
+				LifestyleTopics: "music, travel",
+			},
+		},
+	}
+}
+
+const testWordTranslationUserID = "test-user-id"
 
 func TestNativeToForeignExercise(t *testing.T) {
 	mockAI := &aiservice.AIServiceMock{}
-	wt := NewWordTranslation(mockAI)
+	wt := NewWordTranslation(mockAI, testWordTranslationUserRepo())
 
 	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
@@ -31,7 +46,7 @@ func TestNativeToForeignExercise(t *testing.T) {
 	}
 
 	exercisesQuantity := 3
-	got, err := wt.NativeToForeignExercise(exercisesQuantity, "pt", "it")
+	got, err := wt.NativeToForeignExercise(exercisesQuantity, "pt", "it", testWordTranslationUserID)
 
 	if err != nil {
 		t.Errorf("NativeToForeignExercise(%d) should not return an error, but got %v", exercisesQuantity, err)
@@ -52,7 +67,7 @@ func TestNativeToForeignExercise(t *testing.T) {
 
 func TestForeignToNativeExercise(t *testing.T) {
 	mockAI := &aiservice.AIServiceMock{}
-	wt := NewWordTranslation(mockAI)
+	wt := NewWordTranslation(mockAI, testWordTranslationUserRepo())
 
 	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return `{
@@ -74,7 +89,7 @@ func TestForeignToNativeExercise(t *testing.T) {
 	}
 
 	exercisesQuantity := 3
-	got, err := wt.ForeignToNativeExercise(exercisesQuantity, "it", "pt")
+	got, err := wt.ForeignToNativeExercise(exercisesQuantity, "it", "pt", testWordTranslationUserID)
 
 	if err != nil {
 		t.Errorf("ForeignToNativeExercise(%d) should not return an error, but got %v", exercisesQuantity, err)
@@ -95,14 +110,14 @@ func TestForeignToNativeExercise(t *testing.T) {
 
 func TestNativeToForeignExercise_WithError(t *testing.T) {
 	mockAI := &aiservice.AIServiceMock{}
-	wt := NewWordTranslation(mockAI)
+	wt := NewWordTranslation(mockAI, testWordTranslationUserRepo())
 
 	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return "", errors.New("AI service failed")
 	}
 
 	exercisesQuantity := 3
-	got, err := wt.NativeToForeignExercise(exercisesQuantity, "pt", "it")
+	got, err := wt.NativeToForeignExercise(exercisesQuantity, "pt", "it", testWordTranslationUserID)
 
 	if err == nil {
 		t.Errorf("NativeToForeignExercise(%d) should return an error when AI service fails, but got nil", exercisesQuantity)
@@ -115,14 +130,14 @@ func TestNativeToForeignExercise_WithError(t *testing.T) {
 
 func TestForeignToNativeExercise_WithError(t *testing.T) {
 	mockAI := &aiservice.AIServiceMock{}
-	wt := NewWordTranslation(mockAI)
+	wt := NewWordTranslation(mockAI, testWordTranslationUserRepo())
 
 	mockAI.PromptWithStructuredResponseFunc = func(prompt string, model map[string]any) (string, error) {
 		return "", errors.New("AI service failed")
 	}
 
 	exercisesQuantity := 3
-	got, err := wt.ForeignToNativeExercise(exercisesQuantity, "it", "pt")
+	got, err := wt.ForeignToNativeExercise(exercisesQuantity, "it", "pt", testWordTranslationUserID)
 
 	if err == nil {
 		t.Errorf("ForeignToNativeExercise(%d) should return an error when AI service fails, but got nil", exercisesQuantity)
