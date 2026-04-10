@@ -1,0 +1,86 @@
+package core
+
+import (
+	"errors"
+	"os"
+	"strings"
+
+	"github.com/joho/godotenv"
+)
+
+type EnvConfig struct {
+	Port          string
+	OpenAIKey     string
+	JWTSecret     string
+	DatabaseURL   string
+	PostHogAPIKey string
+	// DB    PostgresConfig
+	// Port  string
+}
+
+var envConfigData *EnvConfig
+
+// type LogConfig struct {
+// 	Style string
+// 	Level string
+// }
+
+// type PostgresConfig struct {
+// 	Username string
+// 	Password string
+// 	URL      string
+// 	Port     string
+// }
+
+func getEnvValue(key string) (string, error) {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return "", errors.New(key + " environment variable is required and cannot be empty")
+	}
+	return value, nil
+}
+
+func LoadEnvConfig() error {
+	godotenv.Load()
+
+	openAIKey, err := getEnvValue("OPENAI_API_KEY")
+	if err != nil {
+		return err
+	}
+
+	port, err := getEnvValue("PORT")
+	if err != nil {
+		return err
+	}
+
+	jwtSecret, err := getEnvValue("JWT_SECRET")
+	if err != nil {
+		return err
+	}
+
+	databaseURL, err := getEnvValue("DATABASE_URL")
+	if err != nil {
+		return err
+	}
+
+	postHogAPIKey, err := getEnvValue("POSTHOG_API_KEY")
+	if err != nil {
+		return err
+	}
+
+	config := &EnvConfig{
+		Port:          port,
+		OpenAIKey:     openAIKey,
+		JWTSecret:     jwtSecret,
+		DatabaseURL:   databaseURL,
+		PostHogAPIKey: postHogAPIKey,
+	}
+
+	envConfigData = config
+
+	return nil
+}
+
+func GetEnvConfig() *EnvConfig {
+	return envConfigData
+}
