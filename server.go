@@ -11,6 +11,7 @@ import (
 	"gaudiot.com/fonli/core"
 	"gaudiot.com/fonli/core/analytics"
 	"gaudiot.com/fonli/core/database"
+	"gaudiot.com/fonli/core/health"
 	"gaudiot.com/fonli/core/middlewares"
 	"gaudiot.com/fonli/core/security/password"
 	"gaudiot.com/fonli/core/security/tokens"
@@ -68,6 +69,10 @@ func main() {
 	router := chi.NewRouter()
 	router.Use(middlewares.MaxBytesMiddleware(maxBytes))
 	router.Use(middleware.Timeout(requestTimeout))
+
+	// Liveness: sem rate limit para probes de load balancer / Kubernetes.
+	router.Get("/health", health.Handler())
+	router.Get("/healthz", health.Handler())
 
 	authRateLimiter := httprate.LimitByIP(authRateLimit, time.Minute)
 	defaultRateLimiter := httprate.LimitByIP(defaultRateLimit, time.Minute)
