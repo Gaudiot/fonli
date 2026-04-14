@@ -13,6 +13,11 @@ build-n-run:
 	go build -o app
 	./app
 
+build-all:
+	go build -o ./build/app_non_prod
+	GOOS=linux GOARCH=arm64 go build -o ./build/app_arm64
+	GOOS=linux GOARCH=amd64 go build -o ./build/app_amd64
+
 #MARK: - Goose
 migrate-create:
 	goose -dir ./core/database/migrations postgres "$(DATABASE_URL)" create $(name) sql
