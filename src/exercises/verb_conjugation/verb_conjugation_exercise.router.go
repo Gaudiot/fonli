@@ -1,4 +1,4 @@
-package wordconjugationexercise
+package verbconjugationexercise
 
 import (
 	"encoding/json"

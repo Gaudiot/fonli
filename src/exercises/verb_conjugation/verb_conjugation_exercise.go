@@ -1,4 +1,4 @@
-package wordconjugationexercise
+package verbconjugationexercise
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"gaudiot.com/fonli/base"
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
 	user_repository "gaudiot.com/fonli/base/repositories/user"
-	wordtranslationexercise "gaudiot.com/fonli/src/exercises/word_translation"
+	"gaudiot.com/fonli/core/utils"
 )
 
 type Conjugation struct {
@@ -41,7 +41,7 @@ func (w *WordConjugation) GenerateExercise(tense base.Tense, targetLanguage, use
 	}
 	userLifestyleTopics := user.LifestyleTopics
 
-	exerciseSchema := wordtranslationexercise.GenerateSchema[WordConjugationExercise]()
+	exerciseSchema := utils.GenerateSchema[WordConjugationExercise]()
 
 	prompt := fmt.Sprintf(
 		`Create an exercise for the user to conjugate a verb used in daily life in %s.

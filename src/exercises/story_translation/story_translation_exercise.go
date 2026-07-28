@@ -6,22 +6,8 @@ import (
 
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
 	user_repository "gaudiot.com/fonli/base/repositories/user"
-	"github.com/invopop/jsonschema"
+	"gaudiot.com/fonli/core/utils"
 )
-
-func generateSchema[T any]() map[string]any {
-	reflector := jsonschema.Reflector{
-		AllowAdditionalProperties: false,
-		DoNotReference:            true,
-	}
-	var v T
-	schema := reflector.Reflect(v)
-
-	data, _ := json.Marshal(schema)
-	var result map[string]any
-	json.Unmarshal(data, &result)
-	return result
-}
 
 type GenerateStoryResponse struct {
 	Story string `json:"story" jsonschema_description:"A medium-sized, engaging story in Portuguese for translation to Italian"`
@@ -53,7 +39,7 @@ func (h *StoryTranslation) GenerateStory(baseLanguage, targetLanguage, userID st
 	}
 	userLifestyleTopics := user.LifestyleTopics
 
-	schema := generateSchema[GenerateStoryResponse]()
+	schema := utils.GenerateSchema[GenerateStoryResponse]()
 	prompt := fmt.Sprintf(
 		`Create a short story (around 50 words) in %s, to be translated into %s by a student learning it.
 		The story should be interesting, appropriate for students (not too easy, not too hard).
@@ -79,7 +65,7 @@ func (h *StoryTranslation) GenerateStory(baseLanguage, targetLanguage, userID st
 
 // EvaluateTranslation sends the original story and the user translation to AI to receive evaluation and feedback
 func (h *StoryTranslation) EvaluateTranslation(originalStory, userTranslation string, baseLanguage, targetLanguage string) (*EvaluateTranslationResponse, error) {
-	schema := generateSchema[EvaluateTranslationResponse]()
+	schema := utils.GenerateSchema[EvaluateTranslationResponse]()
 	prompt := fmt.Sprintf(
 		`You will evaluate the translation made by a student from %s to %s.
 		You will receive the original text, followed by the student's translation/response.

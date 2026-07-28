@@ -18,8 +18,8 @@ import (
 	"gaudiot.com/fonli/src/authentication"
 	"gaudiot.com/fonli/src/exercises"
 	storytranslation "gaudiot.com/fonli/src/exercises/story_translation"
-	wordconjugationexercise "gaudiot.com/fonli/src/exercises/word_conjugation"
-	wordtranslationexercise "gaudiot.com/fonli/src/exercises/word_translation"
+	verbconjugationexercise "gaudiot.com/fonli/src/exercises/verb_conjugation"
+	vocabularyexercise "gaudiot.com/fonli/src/exercises/vocabulary"
 	"gaudiot.com/fonli/src/user_settings"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -62,8 +62,8 @@ func main() {
 	var userSettingsService *user_settings.UserSettingsService = user_settings.NewUserSettingsService(userRepository, aiService)
 	var authService *authentication.AuthService = authentication.NewAuthService(tokenService, passwordService, userRepository, refreshTokenRepository)
 
-	wordTranslation := wordtranslationexercise.NewWordTranslation(aiService, userRepository)
-	wordConjugation := wordconjugationexercise.NewWordConjugation(aiService, userRepository)
+	vocabularyExercise := vocabularyexercise.NewVocabularyExercise(aiService, userRepository)
+	verbConjugationExercise := verbconjugationexercise.NewWordConjugation(aiService, userRepository)
 	storyTranslation := storytranslation.NewStoryTranslation(aiService, userRepository)
 
 	router := chi.NewRouter()
@@ -86,7 +86,7 @@ func main() {
 		r.Use(defaultRateLimiter)
 		r.Route("/user", user_settings.UserSettingsRouter(userSettingsService, tokenService))
 
-		r.Route("/exercises", exercises.ExercisesRouter(wordConjugation, wordTranslation, storyTranslation, tokenService))
+		r.Route("/exercises", exercises.ExercisesRouter(verbConjugationExercise, vocabularyExercise, storyTranslation, tokenService))
 	})
 
 	log.Printf("Server is running on port :%s", envConfig.Port)

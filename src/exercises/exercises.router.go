@@ -6,24 +6,24 @@ import (
 	"gaudiot.com/fonli/core/middlewares"
 	"gaudiot.com/fonli/core/security/tokens"
 	storytranslation "gaudiot.com/fonli/src/exercises/story_translation"
-	wordconjugationexercise "gaudiot.com/fonli/src/exercises/word_conjugation"
-	wordtranslationexercise "gaudiot.com/fonli/src/exercises/word_translation"
+	verbconjugationexercise "gaudiot.com/fonli/src/exercises/verb_conjugation"
+	vocabularyexercise "gaudiot.com/fonli/src/exercises/vocabulary"
 	"github.com/go-chi/chi/v5"
 )
 
 // MARK: - Router
 
 func ExercisesRouter(
-	wc *wordconjugationexercise.WordConjugation,
-	wt *wordtranslationexercise.WordTranslation,
+	wc *verbconjugationexercise.WordConjugation,
+	wt *vocabularyexercise.VocabularyExercise,
 	st *storytranslation.StoryTranslation,
 	ts tokens.TokenService,
 ) func(chi.Router) {
 	return func(router chi.Router) {
 		router.Use(middlewares.AuthMiddleware(ts))
 
-		router.Route("/word-conjugation", wordconjugationexercise.WordConjugationRouter(wc))
-		router.Route("/word-translation", wordtranslationexercise.WordTranslationRouter(wt))
+		router.Route("/verb-conjugation", verbconjugationexercise.WordConjugationRouter(wc))
+		router.Route("/vocabulary", vocabularyexercise.VocabularyRouter(wt))
 		router.Route("/story-translation", storytranslation.StoryTranslationRouter(st))
 		router.Get("/", handleRoot())
 	}
