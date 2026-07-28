@@ -34,14 +34,13 @@ func NewWordConjugation(aiService aiservice.AIService, userRepository user_repos
 	}
 }
 
-func (w *WordConjugation) GenerateExercise(tense base.Tense, foreignLanguageCode, userID string) (*WordConjugationExercise, error) {
+func (w *WordConjugation) GenerateExercise(tense base.Tense, targetLanguage, userID string) (*WordConjugationExercise, error) {
 	user, err := w.userRepository.GetUserByID(userID)
 	if err != nil {
 		return nil, err
 	}
 	userLifestyleTopics := user.LifestyleTopics
 
-	foreignLanguage := base.LanguageFromCountryCode(foreignLanguageCode)
 	exerciseSchema := wordtranslationexercise.GenerateSchema[WordConjugationExercise]()
 
 	prompt := fmt.Sprintf(
@@ -57,9 +56,9 @@ func (w *WordConjugation) GenerateExercise(tense base.Tense, foreignLanguageCode
 		- Practice sports
 		- Ask for something at the restaurant
 		`,
-		foreignLanguage,
+		targetLanguage,
 		tense,
-		foreignLanguage,
+		targetLanguage,
 		userLifestyleTopics,
 	)
 

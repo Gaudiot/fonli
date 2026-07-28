@@ -2,7 +2,6 @@ package wordtranslationexercise
 
 import (
 	"encoding/json"
-	"errors"
 	"log/slog"
 	"net/http"
 
@@ -41,14 +40,21 @@ func WordTranslationRouter(wt *WordTranslation) func(chi.Router) {
 
 func handleNativeToForeignExercise(wt *WordTranslation) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		nl := r.URL.Query().Get("nl")
-		fl := r.URL.Query().Get("fl")
+		baseLanguageCode := r.URL.Query().Get("nl")
+		targetLanguageCode := r.URL.Query().Get("fl")
 		userID, _ := middlewares.UserIDFromContext(r.Context())
 
-		if base.LanguageFromCountryCode(nl) == "" || base.LanguageFromCountryCode(fl) == "" {
-			analytics.TrackExerciseInvocation(userID, analytics.ExerciseWordTranslationNativeToForeign, analytics.ExerciseOutcomeValidationError,
-				errors.New("invalid language code for 'nl' or 'fl'"))
-			writeError(w, http.StatusBadRequest, "invalid language code for 'nl' or 'fl'")
+		baseLanguage, err := base.LanguageFromCountryCode(baseLanguageCode)
+		if err != nil {
+			analytics.TrackExerciseInvocation(userID, analytics.ExerciseWordTranslationNativeToForeign, analytics.ExerciseOutcomeValidationError, err)
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		targetLanguage, err := base.LanguageFromCountryCode(targetLanguageCode)
+		if err != nil {
+			analytics.TrackExerciseInvocation(userID, analytics.ExerciseWordTranslationNativeToForeign, analytics.ExerciseOutcomeValidationError, err)
+			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -57,7 +63,7 @@ func handleNativeToForeignExercise(wt *WordTranslation) http.HandlerFunc {
 			return
 		}
 
-		exercises, err := wt.NativeToForeignExercise(10, nl, fl, userID)
+		exercises, err := wt.NativeToForeignExercise(10, baseLanguage, targetLanguage, userID)
 		if err != nil {
 			slog.Error("failed to generate native-to-foreign exercise", "error", err)
 			analytics.TrackExerciseInvocation(userID, analytics.ExerciseWordTranslationNativeToForeign, analytics.ExerciseOutcomeInternalError, err)
@@ -72,14 +78,21 @@ func handleNativeToForeignExercise(wt *WordTranslation) http.HandlerFunc {
 
 func handleForeignToNativeExercise(wt *WordTranslation) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		nl := r.URL.Query().Get("nl")
-		fl := r.URL.Query().Get("fl")
+		baseLanguageCode := r.URL.Query().Get("nl")
+		targetLanguageCode := r.URL.Query().Get("fl")
 		userID, _ := middlewares.UserIDFromContext(r.Context())
 
-		if base.LanguageFromCountryCode(nl) == "" || base.LanguageFromCountryCode(fl) == "" {
-			analytics.TrackExerciseInvocation(userID, analytics.ExerciseWordTranslationForeignToNative, analytics.ExerciseOutcomeValidationError,
-				errors.New("invalid language code for 'nl' or 'fl'"))
-			writeError(w, http.StatusBadRequest, "invalid language code for 'nl' or 'fl'")
+		baseLanguage, err := base.LanguageFromCountryCode(baseLanguageCode)
+		if err != nil {
+			analytics.TrackExerciseInvocation(userID, analytics.ExerciseWordTranslationForeignToNative, analytics.ExerciseOutcomeValidationError, err)
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		targetLanguage, err := base.LanguageFromCountryCode(targetLanguageCode)
+		if err != nil {
+			analytics.TrackExerciseInvocation(userID, analytics.ExerciseWordTranslationForeignToNative, analytics.ExerciseOutcomeValidationError, err)
+			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -88,7 +101,7 @@ func handleForeignToNativeExercise(wt *WordTranslation) http.HandlerFunc {
 			return
 		}
 
-		exercises, err := wt.ForeignToNativeExercise(10, fl, nl, userID)
+		exercises, err := wt.ForeignToNativeExercise(10, baseLanguage, targetLanguage, userID)
 		if err != nil {
 			slog.Error("failed to generate foreign-to-native exercise", "error", err)
 			analytics.TrackExerciseInvocation(userID, analytics.ExerciseWordTranslationForeignToNative, analytics.ExerciseOutcomeInternalError, err)

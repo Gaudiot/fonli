@@ -48,14 +48,20 @@ func StoryTranslationRouter(st *StoryTranslation) func(chi.Router) {
 
 func handleGenerateStory(st *StoryTranslation) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		nativeLanguageCode := r.URL.Query().Get("nl")
-		foreignLanguageCode := r.URL.Query().Get("fl")
+		baseLanguageCode := r.URL.Query().Get("nl")
+		targetLanguageCode := r.URL.Query().Get("fl")
 		userID, _ := middlewares.UserIDFromContext(r.Context())
 
-		if base.LanguageFromCountryCode(nativeLanguageCode) == "" || base.LanguageFromCountryCode(foreignLanguageCode) == "" {
-			analytics.TrackExerciseInvocation(userID, analytics.ExerciseStoryTranslationGenerate, analytics.ExerciseOutcomeValidationError,
-				errors.New("invalid language code for 'nl' or 'fl'"))
-			writeError(w, http.StatusBadRequest, "invalid language code for 'nl' or 'fl'")
+		baseLanguage, err := base.LanguageFromCountryCode(baseLanguageCode)
+		if err != nil {
+			analytics.TrackExerciseInvocation(userID, analytics.ExerciseStoryTranslationGenerate, analytics.ExerciseOutcomeValidationError, err)
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		targetLanguage, err := base.LanguageFromCountryCode(targetLanguageCode)
+		if err != nil {
+			analytics.TrackExerciseInvocation(userID, analytics.ExerciseStoryTranslationGenerate, analytics.ExerciseOutcomeValidationError, err)
+			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -64,7 +70,7 @@ func handleGenerateStory(st *StoryTranslation) http.HandlerFunc {
 			return
 		}
 
-		story, err := st.GenerateStory(nativeLanguageCode, foreignLanguageCode, userID)
+		story, err := st.GenerateStory(baseLanguage, targetLanguage, userID)
 		if err != nil {
 			slog.Error("failed to generate story", "error", err)
 			analytics.TrackExerciseInvocation(userID, analytics.ExerciseStoryTranslationGenerate, analytics.ExerciseOutcomeInternalError, err)
@@ -81,14 +87,20 @@ const maxStoryLength = 5000
 
 func handleEvaluateTranslation(st *StoryTranslation) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		nativeLanguageCode := r.URL.Query().Get("nl")
-		foreignLanguageCode := r.URL.Query().Get("fl")
+		baseLanguageCode := r.URL.Query().Get("nl")
+		targetLanguageCode := r.URL.Query().Get("fl")
 		userID, _ := middlewares.UserIDFromContext(r.Context())
 
-		if base.LanguageFromCountryCode(nativeLanguageCode) == "" || base.LanguageFromCountryCode(foreignLanguageCode) == "" {
-			analytics.TrackExerciseInvocation(userID, analytics.ExerciseStoryTranslationEvaluate, analytics.ExerciseOutcomeValidationError,
-				errors.New("invalid language code for 'nl' or 'fl'"))
-			writeError(w, http.StatusBadRequest, "invalid language code for 'nl' or 'fl'")
+		baseLanguage, err := base.LanguageFromCountryCode(baseLanguageCode)
+		if err != nil {
+			analytics.TrackExerciseInvocation(userID, analytics.ExerciseStoryTranslationEvaluate, analytics.ExerciseOutcomeValidationError, err)
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		targetLanguage, err := base.LanguageFromCountryCode(targetLanguageCode)
+		if err != nil {
+			analytics.TrackExerciseInvocation(userID, analytics.ExerciseStoryTranslationEvaluate, analytics.ExerciseOutcomeValidationError, err)
+			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -118,7 +130,7 @@ func handleEvaluateTranslation(st *StoryTranslation) http.HandlerFunc {
 			return
 		}
 
-		evaluation, err := st.EvaluateTranslation(req.Story, req.UserTranslation, nativeLanguageCode, foreignLanguageCode)
+		evaluation, err := st.EvaluateTranslation(req.Story, req.UserTranslation, baseLanguage, targetLanguage)
 		if err != nil {
 			slog.Error("failed to evaluate translation", "error", err)
 			analytics.TrackExerciseInvocation(userID, analytics.ExerciseStoryTranslationEvaluate, analytics.ExerciseOutcomeInternalError, err)

@@ -40,14 +40,14 @@ func WordConjugationRouter(wc *WordConjugation) func(chi.Router) {
 
 func handleGenerateExercise(wc *WordConjugation) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		foreignLanguageCode := r.URL.Query().Get("fl")
+		targetLanguageCode := r.URL.Query().Get("fl")
 		rawTense := r.URL.Query().Get("tense")
 		userID, _ := middlewares.UserIDFromContext(r.Context())
 
-		if base.LanguageFromCountryCode(foreignLanguageCode) == "" {
-			analytics.TrackExerciseInvocation(userID, analytics.ExerciseWordConjugation, analytics.ExerciseOutcomeValidationError,
-				errors.New("invalid language code for 'fl'"))
-			writeError(w, http.StatusBadRequest, "invalid language code for 'fl'")
+		targetLanguage, err := base.LanguageFromCountryCode(targetLanguageCode)
+		if err != nil {
+			analytics.TrackExerciseInvocation(userID, analytics.ExerciseWordConjugation, analytics.ExerciseOutcomeValidationError, err)
+			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -65,7 +65,7 @@ func handleGenerateExercise(wc *WordConjugation) http.HandlerFunc {
 			return
 		}
 
-		exercises, err := wc.GenerateExercise(tense, foreignLanguageCode, userID)
+		exercises, err := wc.GenerateExercise(tense, targetLanguage, userID)
 		if err != nil {
 			slog.Error("failed to generate conjugation exercise", "error", err)
 			analytics.TrackExerciseInvocation(userID, analytics.ExerciseWordConjugation, analytics.ExerciseOutcomeInternalError, err)
