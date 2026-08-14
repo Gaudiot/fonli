@@ -1,27 +1,17 @@
 package base
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 type Language struct {
 	Portuguese string
 	Italian    string
 	English    string
 	French     string
-}
-
-func LanguageFromCountryCode(code string) string {
-	switch strings.ToLower(code) {
-	case "pt", "pt-pt", "pt-br", "br":
-		return Languages.Portuguese
-	case "it", "it-it":
-		return Languages.Italian
-	case "en", "en-us", "en-gb", "us":
-		return Languages.English
-	case "fr", "fr-fr":
-		return Languages.French
-	default:
-		return ""
-	}
+	Spanish    string
+	German     string
 }
 
 var Languages = &Language{
@@ -29,4 +19,28 @@ var Languages = &Language{
 	Italian:    "Italian",
 	English:    "English",
 	French:     "French",
+	Spanish:    "Spanish",
+	German:     "German",
+}
+
+func LanguageFromCountryCode(code string) (string, error) {
+	lowerCode := strings.ToLower(code)
+	languageCode := strings.Split(lowerCode, "_")[0]
+
+	switch languageCode {
+	case "pt":
+		return Languages.Portuguese, nil
+	case "it":
+		return Languages.Italian, nil
+	case "en":
+		return Languages.English, nil
+	case "fr":
+		return Languages.French, nil
+	case "es":
+		return Languages.Spanish, nil
+	case "de":
+		return Languages.German, nil
+	default:
+		return "", errors.New("invalid language code: " + code)
+	}
 }

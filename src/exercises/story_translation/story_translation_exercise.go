@@ -4,25 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"gaudiot.com/fonli/base"
 	aiservice "gaudiot.com/fonli/base/http_services/ai_service"
 	user_repository "gaudiot.com/fonli/base/repositories/user"
-	"github.com/invopop/jsonschema"
+	"gaudiot.com/fonli/core/utils"
 )
-
-func generateSchema[T any]() map[string]any {
-	reflector := jsonschema.Reflector{
-		AllowAdditionalProperties: false,
-		DoNotReference:            true,
-	}
-	var v T
-	schema := reflector.Reflect(v)
-
-	data, _ := json.Marshal(schema)
-	var result map[string]any
-	json.Unmarshal(data, &result)
-	return result
-}
 
 type GenerateStoryResponse struct {
 	Story string `json:"story" jsonschema_description:"A medium-sized, engaging story in Portuguese for translation to Italian"`
@@ -47,25 +32,22 @@ func NewStoryTranslation(aiService aiservice.AIService, userRepository user_repo
 }
 
 // GenerateStory generates a medium-sized story in Portuguese for the user to translate
-func (h *StoryTranslation) GenerateStory(nativeLanguageCode, foreignLanguageCode, userID string) (*GenerateStoryResponse, error) {
+func (h *StoryTranslation) GenerateStory(baseLanguage, targetLanguage, userID string) (*GenerateStoryResponse, error) {
 	user, err := h.userRepository.GetUserByID(userID)
 	if err != nil {
 		return nil, err
 	}
 	userLifestyleTopics := user.LifestyleTopics
 
-	nativeLanguage := base.LanguageFromCountryCode(nativeLanguageCode)
-	foreignLanguage := base.LanguageFromCountryCode(foreignLanguageCode)
-
-	schema := generateSchema[GenerateStoryResponse]()
+	schema := utils.GenerateSchema[GenerateStoryResponse]()
 	prompt := fmt.Sprintf(
 		`Create a short story (around 50 words) in %s, to be translated into %s by a student learning it.
 		The story should be interesting, appropriate for students (not too easy, not too hard).
 		There are some lifestyle topics that the user likes to use in his daily life, these are: %s.
 		You may weave themes related to these topics into the story when natural.
 		The result should be only a JSON object that contains the field "story".`,
-		nativeLanguage,
-		foreignLanguage,
+		baseLanguage,
+		targetLanguage,
 		userLifestyleTopics,
 	)
 
@@ -82,11 +64,8 @@ func (h *StoryTranslation) GenerateStory(nativeLanguageCode, foreignLanguageCode
 }
 
 // EvaluateTranslation sends the original story and the user translation to AI to receive evaluation and feedback
-func (h *StoryTranslation) EvaluateTranslation(originalStory, userTranslation string, nativeLanguageCode string, foreignLanguageCode string) (*EvaluateTranslationResponse, error) {
-	nativeLanguage := base.LanguageFromCountryCode(nativeLanguageCode)
-	foreignLanguage := base.LanguageFromCountryCode(foreignLanguageCode)
-
-	schema := generateSchema[EvaluateTranslationResponse]()
+func (h *StoryTranslation) EvaluateTranslation(originalStory, userTranslation string, baseLanguage, targetLanguage string) (*EvaluateTranslationResponse, error) {
+	schema := utils.GenerateSchema[EvaluateTranslationResponse]()
 	prompt := fmt.Sprintf(
 		`You will evaluate the translation made by a student from %s to %s.
 		You will receive the original text, followed by the student's translation/response.
@@ -103,10 +82,10 @@ func (h *StoryTranslation) EvaluateTranslation(originalStory, userTranslation st
 		User's translation:
 		%s
 		`,
-		nativeLanguage,
-		foreignLanguage,
-		foreignLanguage,
-		nativeLanguage,
+		baseLanguage,
+		targetLanguage,
+		targetLanguage,
+		baseLanguage,
 		originalStory,
 		userTranslation,
 	)
