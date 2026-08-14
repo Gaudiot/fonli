@@ -44,6 +44,16 @@ jobs:
           GOARCH=amd64 \
           go build -trimpath -o build/app_amd64 .
 
+      - name: Validate deployment files
+        run: |
+          test -f appspec.yml
+          test -f build/app_amd64
+          test -f deploy/fonli.service
+          test -f scripts/before_install.sh
+          test -f scripts/after_install.sh
+          test -f scripts/application_start.sh
+          test -f scripts/validate_service.sh
+
       - name: Create deployment package
         run: |
           chmod +x build/app_amd64

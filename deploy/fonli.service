@@ -1,0 +1,19 @@
+[Unit]
+Description=Fonli API
+After=network-online.target
+
+[Service]
+Type=simple
+
+User=ec2-user
+WorkingDirectory=/opt/fonli
+
+ExecStart=/opt/fonli/app_amd64
+
+Restart=on-failure
+RestartSec=5
+
+EnvironmentFile=-/etc/fonli/fonli.env
+
+[Install]
+WantedBy=multi-user.target
