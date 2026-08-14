@@ -61,6 +61,10 @@ jobs:
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/GitHubFonliDeployRole
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Inspect deployment package
+        run: |
+          unzip -l deployment.zip
+
       - name: Upload revision to S3
         run: |
           aws s3 cp \
